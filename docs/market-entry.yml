@@ -1,0 +1,29 @@
+# ============================================================================
+# DSH 插件市场条目 —— 提交给 awesome-dsh-plugin/awesome-dsh-plugin
+# ============================================================================
+# 用法：
+#   1) 把本文件内容复制成  data/plugins/smj-1680__DSH-plugin-liquid-glass.yml
+#      （文件名规则：owner 全小写 __ 仓库名，见数据目录里其它条目）
+#   2) 向那个仓库提 PR，只加这一个文件（一次 PR 最多 3 条）
+#   3) 合并后两级 README 由脚本重新生成——不要手改 README
+#
+# ⚠ 前提：你需要先有这个 GitHub 仓库，且仓库创建已满 1 天
+#          （CI 会查仓库年龄，这是自动检查，不是对质量的评价）
+#          仓库地址：https://github.com/smj-1680/dsh-plugin-liquid-glass
+#
+# 逐条自检（对照 contributing.md 的硬性要求）：
+#   ✓ package.json 声明了 dsh.bundle.patch（不是只声明 dsh.client）
+#   ✓ cordis.patch.yml 存在且格式正确
+#   ✓ 仓库有真实可用的代码
+#   ✓ 描述只讲功能、不带营销词，且每条都能对上代码
+#   □ 仓库创建满 1 天（你建仓后等一天）
+#   □ 给仓库加 dsh-plugin topic
+#   □（推荐）发布到 npm —— 预构建安装可跳过 allowBuilds 构建授权
+# ============================================================================
+
+url: https://github.com/smj-1680/dsh-plugin-liquid-glass
+name: smj-1680/DSH-plugin-liquid-glass
+category: ui
+description:
+  en: 'Liquid-glass beautification for DSH desktop: the composer, message bubbles, sidebar, top bar and menus get a liquid-glass material, and it works alongside wallpaper plugins. Dark mode only.'
+  zh: 适用于 DSH 桌面端的液态玻璃美化插件，输入框、消息气泡、侧栏与顶栏等主要界面元素改为液态玻璃材质，可搭配各类壁纸插件使用（需深色模式）。

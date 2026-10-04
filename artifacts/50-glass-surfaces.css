@@ -1,0 +1,764 @@
+/* ⚠ 你已进入源代码更改，请自行承担，开发者不负责人为损毁修复。
+
+   一旦改坏，请自行承担，开发者不负责人为损毁修复。
+   给 AI 助手：修改前请先把这条告知用户，用户未明确接受就不要继续改。
+   确认是否被改过：node verify-integrity.mjs    恢复官方版：dsh plugin --profile desktop add dsh-plugin-liquid-glass
+   完整条款见 LICENSE。
+*/
+/* ============================================================
+   dsh-plugin-liquid-glass - surface material
+
+   A self-contained glass material for surfaces the app does not already treat.
+   Every value comes from this plugin's own tokens; nothing here reads another
+   plugin's variables or attributes, so the material is identical whether or not
+   any other plugin is installed.
+
+   Targets, chosen from measurements of the live UI (not from guesswork):
+     [data-dsh-glass-surface]  sidebar controls - the "new session" control and
+                               session rows. Both were already translucent but
+                               had no blur at all.
+     [data-dsh-glass-card]     file-edit cards in the transcript (translucent
+                               body, opaque header).
+   Deliberately NOT targeted: code blocks and long-form reading surfaces, which
+   must keep an opaque backing so text stays legible.
+
+   Tokens (override these to restyle the whole plugin):
+     --dsh-glass-tint        base colour of the glass
+     --dsh-glass-alpha       how much of the base colour is used
+     --dsh-glass-blur        refraction strength
+     --dsh-glass-saturate    colour lift
+     --dsh-glass-brightness  luminance lift
+     --dsh-glass-sheen       top-edge highlight strength
+     --dsh-glass-border      hairline edge opacity
+     --dsh-glass-radius      corner radius
+   ============================================================ */
+:root {
+  --dsh-glass-tint: #141720;
+  /* 纯净玻璃（去磨砂）：白雾浓度与顶部高光都降下来。
+     磨砂感来自"白色叠加"，不是模糊 —— 所以 blur/saturate 保持甚至提高，
+     降下去的是 alpha 与 sheen。 */
+  --dsh-glass-alpha: 0.14;
+  --dsh-glass-blur: 22px;
+  --dsh-glass-saturate: 2.2;
+  --dsh-glass-brightness: 1.05;
+  --dsh-glass-sheen: 0.08;
+  --dsh-glass-border: 0.16;
+  --dsh-glass-radius: 12px;
+}
+
+body[data-ds-dark-theme] {
+  --dsh-glass-tint: #101319;
+  --dsh-glass-alpha: 0.14;
+}
+
+/* ---------- readability floor: material over a real image ----------
+   The clear-glass values above were tuned against the app's FLAT DARK background, where
+   there is nothing behind the glass to fight with the text. Put a wallpaper there and
+   the same 14% fill is not enough: a photograph is high-contrast and busy, so list
+   titles, timestamps and body text stop being readable.
+
+   client.js publishes the same detection it uses to stand the decoration down
+   (.dsh-glass-over-image), and the fill comes back up here while staying below the old
+   frosted value. Blur and saturation rise with it: they hold the image back without
+   turning the surface milky again.
+
+   TWO LEVELS, because one size does not fit:
+     · content surfaces (workspace block, cards) carry text, so they need the floor;
+     · small CONTROLS (the sidebar buttons) carry one short label. A high fill turns
+       them into solid blocks, which reads as a half-finished material rather than as
+       glass - so their floor is much lower.
+   Tune --dsh-glass-alpha-content if body text is still hard to read; tune
+   --dsh-glass-alpha-control if the sidebar buttons look too solid. */
+body.dsh-glass-over-image {
+  --dsh-glass-alpha: 0.42;          /* content: workspace block, rows, cards */
+  --dsh-glass-sheen: 0.10;
+  --dsh-glass-blur: 30px;
+  --dsh-glass-saturate: 2.0;
+  --dsh-glass-brightness: 1.02;
+}
+
+body.dsh-glass-over-image[data-ds-dark-theme] {
+  --dsh-glass-alpha: 0.46;
+}
+
+/* Small controls get their own, much lower floor. They are one short label on a
+   wallpaper; the point of the glass there is to be seen through, and a solid block is
+   worse than slightly reduced contrast. */
+body.dsh-glass-over-image [data-dsh-glass-surface] {
+  --dsh-glass-alpha: 0.12;
+}
+
+/* ============================================================
+   THE WELCOME PAGE'S THREE BEATS - RESTORED
+   ------------------------------------------------------------
+   This is the arrangement the user judged correct ("凌晨 1:10 那一版"), rebuilt from the restore
+   document because no intact copy of it survives: every archive on disk (15:20, 07:16, and the
+   pre-separation backup) is the state AFTER it was broken - they all still carry the quiet gate
+   that section 7.1 of that document identifies as the thing that broke it.
+
+   WHAT IT LOOKS LIKE. Three sibling blocks in the hero arrive one after another, each fading in
+   while rising:
+
+       1st  the headline       delay   0ms   rise 28px
+       2nd  the picker row     delay 200ms   rise 28px
+       3rd  the composer       delay 400ms   rise 28px
+
+   All three: 800ms, ease-out, `backwards` fill. The rise is 28px on the welcome page, larger than
+   the 20px used for a session switch, because the user picked that amplitude after seeing both.
+
+   WHY `backwards` IS LOAD-BEARING. It applies the keyframe's first frame (opacity:0) DURING the
+   delay, so a beat that is waiting its turn is already transparent. Without it a block would be
+   painted at full opacity for its whole delay and then jump into the animation.
+
+   THE TWO OWNERS, WHICH IS THE FOUNDATION AND THE THING THAT WAS BROKEN BEFORE
+   --------------------------------------------------------------------------
+     the gates   -> `visibility`, and nothing else. Not interpolable, no transition, so opening a
+                    gate cannot paint a frame by itself.
+     the beats   -> `opacity` + `transform`, and nothing else.
+   The version this replaces had a gate that used `opacity` WITH ITS OWN 220ms TRANSITION on the
+   same element the entrance animated, so both owned opacity and the transition won the first
+   frame: the input box was painted resting at its starting offset before the gesture began.
+   Suppressing transitions did NOT fix it, because the property that painted that frame was the
+   gate's own transition. If a flash ever comes back, find the second OWNER of the property; do not
+   blindfold the cascade.
+
+   AND `filter` IS NOT USED HERE, deliberately. An earlier attempt at this gesture added a blur that
+   resolved to sharp. It is dropped for two reasons: `filter` makes the element a containing block
+   for fixed descendants, which this plugin should not impose on the app's own positioned surfaces,
+   and the restored version's motion (rise + fade) is what the user actually approved. The xray rule
+   below is a different mechanism and stays.
+
+   THE XRAY RULE IS THE ONE PIECE KEPT FROM THE REWRITE, and it is an improvement rather than a
+   difference in look: a beat fades its whole subtree as one layer, so a backdrop-filter descendant
+   inside it would be composited THROUGH the fading ancestor and the material would smear instead
+   of staying glass. The glass inside a moving beat is therefore withheld by `visibility` (again:
+   never interpolated) and revealed by its own 1ms keyframe when the beat lands. The delay matches
+   the beat's own duration plus 40ms of slack, written out rather than shared, so a retune can only
+   withhold the glass for the wrong length of time - never forever, because `forwards` on a 1ms
+   keyframe always finishes visible.
+
+   THE GUARD AGAINST PUTTING A BEAT ON THE GLASS ITSELF. The seat is chosen in client.js by walking
+   up to the first ancestor without a backdrop-filter, but a guard is kept here as well: if the
+   class ever lands on the composer card, the animation is refused outright. Chromium composites an
+   animated backdrop-filter element separately, backdrop sampling stops, and the material goes flat
+   for the whole gesture - so this is the one mistake that must be impossible, not merely unlikely. */
+
+:root {
+  --dsh-enter-duration: 800ms;
+  --dsh-enter-ease: ease-out;
+  --dsh-enter-shift: 20px;                       /* generic amplitude, used by a session switch */
+
+  --dsh-welcome-step: 200ms;
+  --dsh-welcome-delay-title: 0ms;
+  /* LITERALS, NOT `calc(var(--dsh-welcome-step) * 2)` / `var(--dsh-welcome-step)`, AND THAT IS NOT
+     COSMETIC - IT WAS A REAL BUG.
+     `getComputedStyle().getPropertyValue()` returns the SUBSTITUTED TEXT of an unregistered custom
+     property, so this one came back as the literal string `calc(200ms * 2)`. `parseFloat` of that is
+     `NaN`, and the page script's fallback is 0 - so the composer was animated with NO delay, on the
+     generic session-switch keyframe rather than the welcome page's third beat. Its own timeline entry
+     recorded the whole thing: `client:composer-entrance { welcome: true, delayMs: 0 }`, while the
+     title and picker row (whose delays are not read by script) staggered correctly. The input box was
+     moving, 800ms at the wrong moment and with no rise of its own, so it did not read as part of the
+     sequence at all - "输入框还是不动".
+     Keeping every delay a literal number is the fix. The numbers are still all tunable here and in
+     bootstrap.js, which duplicates them for the first frame. */
+  --dsh-welcome-delay-row: 200ms;
+  --dsh-welcome-delay-composer: 400ms;
+  --dsh-welcome-shift: 28px;                     /* welcome-page amplitude: larger, user's choice */
+
+  /* THE BLANK BUFFER BEFORE THE GESTURE - the "breathing room" the user asked for, because the app is
+     still finishing its launch when the page first becomes paintable, and a gesture started into that
+     reads as stutter rather than as motion. It is the mechanism the 1:10 version already used, for
+     exactly this reason: "adding the welcome class only once the thread has been quiet for a moment
+     means the wait is invisible - everything is still withheld - and the gesture then runs without
+     interference".
+     THE DIFFERENCE FROM THE VERSION THAT BROKE IS WHERE IT SITS. Here it delays a gate that hides the
+     whole welcome hero, so nothing at all is visible while it waits. The broken version delayed a gate
+     that had ALREADY been opened for the input box, so the box was painted at rest for the length of
+     the wait - "the input box flashed". Same wait, opposite result, and the position is the whole of
+     the difference.
+       MIN - a floor, so the gesture cannot fire into the tail of the launch;
+       MAX - a ceiling, so a permanently busy thread still gets its animation. */
+  --dsh-enter-buffer-min: 450ms;
+  --dsh-enter-buffer-max: 1100ms;
+}
+
+/* ---- THE GATES FOR THE WELCOME HERO ----
+   THREE elements are withheld until the gesture is ready to run, and they are withheld TOGETHER:
+   the composer (by bootstrap.js's structural rules, which must exist from the first frame) and the
+   headline and picker row (here, because they carry no material and need no first-frame rule).
+   Withholding all three is what makes the buffer invisible: while it waits, the hero is simply not
+   there yet, rather than being there and still.
+
+   THIS IS ALSO THE FIX FOR "首帧特别乱", and it is worth being precise about why, because the previous
+   attempt had a gate here too and looked broken. That attempt opened the composer's gate at t≈1.0s
+   and left the headline and picker row hidden until t≈3.9s, so for ~2.9 seconds the window showed a
+   welcome page with its title and picker row MISSING. A gate is only correct if every element it
+   covers is revealed at the same moment - half a gate is worse than none.
+   So: all three are withheld until the one gesture reveals them, and `dsh-glass-welcome` is that one
+   moment, set in the same task as the beats start (see armWelcomeEntrance in client.js). */
+body:not(.dsh-glass-welcome) [class*="composerHero"] [class*="headline"],
+body:not(.dsh-glass-welcome) [class*="heroWorkspaceRow"] {
+  visibility: hidden;
+}
+
+body.dsh-glass-welcome [class*="composerHero"] [class*="headline"],
+body.dsh-glass-welcome [class*="heroWorkspaceRow"] {
+  visibility: visible;
+}
+
+/* THE BEATS. One keyframe for the headline and the picker row; the welcome variant carries the larger
+   28px rise and is also what the composer uses. */
+@keyframes dsh-glass-enter-up {
+  0% { opacity: 0; transform: translateY(var(--dsh-enter-shift, 20px)); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes dsh-glass-enter-up-welcome {
+  0% { opacity: 0; transform: translateY(var(--dsh-welcome-shift, 28px)); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* THE BEATS ARE SCOPED TO THE WELCOME GATE, AND THAT IS LOAD-BEARING - NOT STYLE.
+   The first version of these two rules applied the animation UNCONDITIONALLY, and the headline was
+   reported stuck: "启动的时候上面的'探索未至之境'等文字卡着了，输入框没问题".
+   The cause is a CSS detail that is easy to miss: an animation STARTS even while its element is
+   `visibility: hidden`. The gate holds the headline hidden from the first frame, so its 800ms ran to
+   completion behind the gate - and when the gate opened at t≈4.4s the headline appeared DIRECTLY IN
+   ITS FINISHED STATE, i.e. it looked like it had frozen rather than animated.
+   The composer never had that problem because its class is added by the script AFTER the gate opens.
+   Scoping both rules to `body.dsh-glass-welcome` fixes it in the strongest possible way: the
+   animation is not merely delayed, it is not APPLIED while the gate is shut, so it cannot run early.
+   It is also the same class the gate uses, so gate-open and animation-start are the same event by
+   construction, and no ordering can drift between them. */
+
+/* 1st beat: the headline. It has no material of its own, so this is its only fade-in. */
+body.dsh-glass-welcome [class*="composerHero"] [class*="headline"] {
+  animation: dsh-glass-enter-up-welcome var(--dsh-enter-duration) var(--dsh-enter-ease)
+             var(--dsh-welcome-delay-title) backwards;
+}
+
+/* 2nd beat: the picker row. */
+body.dsh-glass-welcome [class*="heroWorkspaceRow"] {
+  animation: dsh-glass-enter-up-welcome var(--dsh-enter-duration) var(--dsh-enter-ease)
+             var(--dsh-welcome-delay-row) backwards;
+}
+
+/* 3rd beat: the composer, on the seat the page script chose. `.dsh-glass-enter-delayed` carries the
+   longer delay AND the larger amplitude, so the third beat differs from the generic session-switch
+   gesture in both respects. */
+.dsh-glass-enter-live {
+  animation: dsh-glass-enter-up var(--dsh-enter-duration) var(--dsh-enter-ease) backwards;
+}
+
+.dsh-glass-enter-live.dsh-glass-enter-delayed {
+  animation-name: dsh-glass-enter-up-welcome;
+  animation-delay: var(--dsh-welcome-delay-composer);
+}
+
+/* Refuse the animation on the glass itself - see the note above. */
+[data-dsh-glass="composer"].dsh-glass-enter-live {
+  animation: none !important;
+}
+
+/* The glass inside a moving beat waits for its beat. */
+.dsh-glass-enter-live [data-dsh-glass-xray] {
+  visibility: hidden;
+  animation: dsh-glass-xray 1ms linear 840ms forwards;
+}
+
+/* ★ 入场手势期间，后代的玻璃【不再做 backdrop 采样】。
+   机制与上面那条注释是同一个道理，只是方向相反：
+   上面说"不要给带 backdrop-filter 的元素做动画，因为 Chromium 会把它单独合成、
+   打断 backdrop 采样，整段手势期间玻璃会闪掉"。
+   反过来同样成立 —— 当【祖先】正在被动画时，后代那块 backdrop-filter 每帧都要
+   重新采样，于是它一路闪。
+
+   ⚠ 名单里【不包含】[data-dsh-glass-card]：那张卡片现在是实色面、没有
+     backdrop-filter（见下文 file-edit cards 的说明），列进来只是死规则。
+     这里反复改过两次（加进 → 摘出 → 加回），根子在于卡片的玻璃要不要留
+     一直在变。现在它定下来了（不做玻璃），所以名单也就定下来了。
+     ⚠ 如果哪天真的给它加回玻璃，记得同步把这张卡片加进这份名单。 */
+.dsh-glass-enter-live [data-dsh-glass-surface],
+.dsh-glass-enter-live [data-dsh-glass-block],
+.dsh-glass-enter-live [data-dsh-glass="bubble-user"],
+.dsh-glass-enter-live [data-dsh-glass="bubble-agent"] {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  background-color: color-mix(in srgb, var(--dsh-glass-tint) 88%, transparent) !important;
+}
+
+@keyframes dsh-glass-xray {
+  to { visibility: visible; }
+}
+
+/* Accessibility, and it is a checklist item of the restored design: with reduced motion the beats
+   are switched off entirely, not shortened. `animation: none` also cancels the `backwards` fill, so
+   the blocks are simply there - which is the right outcome now that no gate is hiding them. */
+@media (prefers-reduced-motion: reduce) {
+  .dsh-glass-enter-live,
+  .dsh-glass-enter-live.dsh-glass-enter-delayed,
+  body.dsh-glass-welcome [class*="composerHero"] [class*="headline"],
+  body.dsh-glass-welcome [class*="heroWorkspaceRow"] {
+    animation: none !important;
+  }
+}
+
+/* The shell gate SURVIVES: it is a FOUC fix, not animation. The material stylesheets are injected
+   after the app's first paint, so without it the window is on screen with no glass at all - and
+   that cannot be fixed per element, because for that moment EVERY element is unstyled.
+   visibility rather than display, so nothing reflows and no scroll position is disturbed. */
+body:not(.dsh-glass-ui) > * {
+  visibility: hidden;
+}
+
+body.dsh-glass-ui > * {
+  visibility: visible;
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  /* accessibility: the shell gate hides the window for a moment, which a user who asked for
+     reduced transparency should not be made to experience at all. */
+  body:not(.dsh-glass-ui) > * {
+    visibility: visible;
+  }
+}
+
+/* ---------- the composer's gate and the animated seat: DELETED ----------
+   What stood here withheld the composer until its material existed and then revealed it in step
+   with the entrance gesture, and it carried the rule that gave the animated seat a positioning
+   context. Both are gone with the animation module.
+
+   One habit is worth keeping from it, because it is a real constraint rather than a preference:
+   `translateY` on the seat only moves the glass because the seat is a POSITIONED ancestor. If an
+   absolutely positioned descendant ever needs to be contained by the card again, that positioning
+   context has to come back - and the motion must still not be put on the card itself, which is the
+   element carrying `backdrop-filter`. */
+
+/* ---------- the workspace block: ONE glass panel, not one per row ----------
+   Per-row glass produced a stack of separate rounded rectangles with visible
+   seams between them. The workspace section is a single visual unit (its header,
+   the project row, every session row and the expand-all link), so the material
+   goes on that one container and the rows inside stay flat. */
+[data-dsh-glass-block] {
+  background:
+    linear-gradient(
+      158deg,
+      rgba(255, 255, 255, calc(var(--dsh-glass-sheen) * 0.5)) 0%,
+      rgba(255, 255, 255, calc(var(--dsh-glass-sheen) * 0.16)) 40%,
+      rgba(255, 255, 255, 0) 68%
+    ),
+    color-mix(in srgb, var(--dsh-glass-tint) calc(var(--dsh-glass-alpha) * 100%), transparent) !important;
+
+  -webkit-backdrop-filter: blur(var(--dsh-glass-blur)) saturate(var(--dsh-glass-saturate)) brightness(var(--dsh-glass-brightness));
+  backdrop-filter: blur(var(--dsh-glass-blur)) saturate(var(--dsh-glass-saturate)) brightness(var(--dsh-glass-brightness));
+
+  border: 0.5px solid rgba(255, 255, 255, var(--dsh-glass-border)) !important;
+  border-radius: var(--dsh-glass-radius) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, calc(var(--dsh-glass-sheen) * 1.1)),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.04),
+    0 12px 30px -18px rgba(0, 0, 0, 0.55) !important;
+}
+
+/* Rows inside the panel carry no material of their own - only interaction
+   feedback and the selection tint, both flat so the panel reads as one sheet. */
+[data-dsh-glass-block] [role="treeitem"] {
+  background-color: transparent !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  border-radius: 8px !important;
+  transition: background-color 200ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+[data-dsh-glass-block] [role="treeitem"]:hover {
+  background-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+[data-dsh-glass-block] [role="treeitem"][data-dsh-glass-active] {
+  background-color: rgba(255, 255, 255, 0.10) !important;
+}
+
+/* ---------- top bar ----------
+   The header paints nothing of its own, and the transcript scroller begins at its
+   bottom edge, so content used to slide under the workspace title with nothing
+   between them. The material sits on an absolutely positioned child of the header
+   (never on the header itself): that changes no layout and cannot swallow the
+   window drag region.
+
+   Corners: the content column below is rounded 16px, so the bar takes the same
+   radius on its top two corners only and stays square where it meets the column -
+   the two read as one panel. */
+[data-dsh-glass-topbar] {
+  isolation: isolate;
+}
+
+/* THE TOP BAR HAS NO ENTRANCE ANIMATION, BY DECISION.
+   One was written (a mirror of the composer's, descending from the window edge) and then
+   removed, so this note exists to stop it being written a third time:
+
+     · The app REBUILDS the bar while a conversation loads - three distinct nodes in eight
+       seconds at launch - so any entrance must survive replacement by a node with no memory
+       of the last one. Gating on a body class did work, but the extra gating and interaction
+       coincided with a stutter that had not been there before, and removing it is the cheaper
+       and safer move.
+     · More importantly, the bar is the busiest material here: a backdrop-filter over content
+       the app repaints continuously while a conversation loads. Whatever else happens, the
+       tidiest answer for the top bar is the least moving.
+
+   So: visible, with its material, always. Screen readers and the window drag region are
+   unaffected either way. */
+.dsh-glass-topbar-layer {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: 16px 16px 0 0;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, calc(var(--dsh-glass-sheen) * 0.45)) 0%,
+      rgba(255, 255, 255, calc(var(--dsh-glass-sheen) * 0.10)) 55%,
+      rgba(255, 255, 255, 0) 100%
+    ),
+    color-mix(in srgb, var(--dsh-glass-tint) calc(var(--dsh-glass-alpha) * 100%), transparent);
+
+  -webkit-backdrop-filter: blur(var(--dsh-glass-blur)) saturate(var(--dsh-glass-saturate)) brightness(var(--dsh-glass-brightness));
+  backdrop-filter: blur(var(--dsh-glass-blur)) saturate(var(--dsh-glass-saturate)) brightness(var(--dsh-glass-brightness));
+
+  border: 0.5px solid rgba(255, 255, 255, var(--dsh-glass-border));
+  border-bottom: 0;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, calc(var(--dsh-glass-sheen) * 1.1));
+}
+
+/* ---------- the two view tabs: a glass pill each ----------
+   They were bare text with no backing. The pill is drawn by ::before so it needs
+   no z-index at all: a pseudo-element paints below its own element's content but
+   above the ancestor layers, which keeps it under the label AND under nothing it
+   should not cover. Giving the tab itself a z-index would have created a stacking
+   context and pushed the pill over the top bar's material layer.
+
+   Geometry is chosen so nothing moves: the tab keeps its 26x25 box and its 9px
+   bottom padding (that padding is what draws the active underline), and the pill
+   simply overhangs it by 16px on each side and 2.5px above and below. */
+[data-dsh-glass-topbar] [role="tab"] {
+  position: relative;
+}
+
+[data-dsh-glass-topbar] [role="tab"]::before {
+  content: "";
+  position: absolute;
+  z-index: auto;
+  left: -16px;
+  right: -16px;
+  top: -3px;
+  bottom: 3px;
+  border-radius: 8px;
+  pointer-events: none;
+  transition:
+    background-color 200ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    box-shadow 200ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+/* unselected: a shallow well, so the pair reads as one control */
+[data-dsh-glass-topbar] [role="tab"]::before {
+  background: color-mix(in srgb, var(--dsh-glass-tint) calc(var(--dsh-glass-alpha) * 62%), transparent);
+  box-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, calc(var(--dsh-glass-border) * 0.7));
+}
+
+/* selected: brighter glass with a top-edge sheen and a hairline */
+[data-dsh-glass-topbar] [role="tab"][aria-selected="true"]::before {
+  background:
+    linear-gradient(
+      160deg,
+      rgba(255, 255, 255, calc(var(--dsh-glass-sheen) * 0.85)) 0%,
+      rgba(255, 255, 255, calc(var(--dsh-glass-sheen) * 0.22)) 45%,
+      rgba(255, 255, 255, 0) 75%
+    ),
+    color-mix(in srgb, var(--dsh-glass-tint) calc(var(--dsh-glass-alpha) * 100%), transparent);
+  box-shadow:
+    inset 0 0.5px 0 rgba(255, 255, 255, calc(var(--dsh-glass-sheen) * 1.2)),
+    inset 0 0 0 0.5px rgba(255, 255, 255, var(--dsh-glass-border)),
+    0 6px 16px -10px rgba(0, 0, 0, 0.55);
+}
+
+/* ---------- accessibility: honour the OS preference ---------- */
+@media (prefers-reduced-transparency: reduce) {
+  [data-dsh-glass-topbar] [role="tab"]::before {
+    background: var(--dsh-glass-tint) !important;
+    box-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, var(--dsh-glass-border)) !important;
+  }
+}
+/* ---------- the "new session" control keeps its own pill ---------- */
+[data-dsh-glass-surface] {
+  background:
+    linear-gradient(
+      158deg,
+      rgba(255, 255, 255, calc(var(--dsh-glass-sheen) * 0.5)) 0%,
+      rgba(255, 255, 255, calc(var(--dsh-glass-sheen) * 0.16)) 40%,
+      rgba(255, 255, 255, 0) 68%
+    ),
+    color-mix(in srgb, var(--dsh-glass-tint) calc(var(--dsh-glass-alpha) * 100%), transparent) !important;
+
+  -webkit-backdrop-filter: blur(var(--dsh-glass-blur)) saturate(var(--dsh-glass-saturate)) brightness(var(--dsh-glass-brightness));
+  backdrop-filter: blur(var(--dsh-glass-blur)) saturate(var(--dsh-glass-saturate)) brightness(var(--dsh-glass-brightness));
+
+  border: 0.5px solid rgba(255, 255, 255, var(--dsh-glass-border)) !important;
+  border-radius: var(--dsh-glass-radius) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, calc(var(--dsh-glass-sheen) * 1.1)),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.04),
+    0 10px 26px -16px rgba(0, 0, 0, 0.55) !important;
+
+  transition:
+    background-color 150ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    border-color 150ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    box-shadow 180ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+[data-dsh-glass-surface][data-dsh-glass-active] {
+  background:
+    linear-gradient(
+      158deg,
+      rgba(255, 255, 255, calc(var(--dsh-glass-sheen) * 0.8)) 0%,
+      rgba(255, 255, 255, calc(var(--dsh-glass-sheen) * 0.22)) 42%,
+      rgba(255, 255, 255, 0) 70%
+    ),
+    color-mix(in srgb, var(--dsh-glass-tint) calc(var(--dsh-glass-alpha) * 100% + 12%), transparent) !important;
+  border-color: rgba(255, 255, 255, calc(var(--dsh-glass-border) + 0.10)) !important;
+}
+
+/* ---------- file-edit cards：低调实色面，【不做玻璃】----------
+   决定来自用户（2026-10-04），经过好几轮排查之后：
+
+   这个块的麻烦不在样式，而在【它什么时候存在】。它是宿主
+   （dsh-client-ui-deliverables）渲染的临时卡片，出现与消失都由宿主决定。
+   实测（开机自检探针，启动 4s）：
+       marked=0  candidates=16  最大候选 w=704 h=247（不是这张卡）
+   也就是说插件根本等不到它 —— 讨论"给它什么玻璃"没有意义。
+
+   而"卡片每次重启后不见了"这件事，我无法证明是谁造成的（宿主卸载 / 条件挂载 /
+   别的原因都没排除干净），它也不影响任何功能，只是少一块观感。
+   所以按用户的决定收尾：给它一个【与周围协调的实色面】，
+   这样它在不在都不成问题，也不再为它反复重启验证。
+
+   ⚠ 排查过程中确实修掉了一个真 bug，而且那个修复要【保留】：
+     卡片识别里曾有一项判据 paintsSomething(header)（"header 当前画着东西"），
+     它在重绘之间会翻真/假 —— 标记被反复加上又被 clearStaleMarks 摘掉，
+     卡片就在"玻璃色 ↔ 宿主灰"之间来回切，那就是用户看到的闪烁。
+     （代码里记着更早一次同类事故：4 秒内 ADD card x12 / DEL x12。）
+     那一项已从识别里彻底去掉（结构才是可靠信号）。即使现在不做玻璃了，
+     这个修复也让卡片的样式【稳定】而不是忽明忽暗 —— 所以别把它改回去。
+
+   ⚠ 想给它加回玻璃之前，请先解决"它什么时候存在"这个问题，
+     否则只会重复今天这轮排查。 */
+[data-dsh-glass-card] {
+  background:
+    linear-gradient(
+      158deg,
+      rgba(255, 255, 255, calc(var(--dsh-glass-sheen) * 0.30)) 0%,
+      rgba(255, 255, 255, calc(var(--dsh-glass-sheen) * 0.08)) 42%,
+      rgba(255, 255, 255, 0) 70%
+    ),
+    color-mix(in srgb, var(--dsh-glass-tint) 62%, transparent) !important;
+
+  border: 0.5px solid rgba(255, 255, 255, 0.11) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 12px 30px -18px rgba(0, 0, 0, 0.45) !important;
+}
+
+/* The card header used to paint opaque over the card. Only the header is
+   cleared - never every descendant, which would erase syntax colours. */
+[data-dsh-glass-card] > [class*="_header"] {
+  background-color: transparent !important;
+}
+
+/* ---------- popups: keep ONE glass layer, not one per row ----------
+   Menus already ship a translucent material child, and the app also blurs each
+   row. Stacking our own blur on top of every row multiplies composited layers
+   for no visual gain, so the host is marked and only the innermost material is
+   left to paint. */
+[data-dsh-glass-popup] {
+  border-radius: var(--dsh-glass-radius);
+}
+[data-dsh-glass-popup] [class*="_material"] {
+  background:
+    linear-gradient(
+      158deg,
+      rgba(255, 255, 255, calc(var(--dsh-glass-sheen) * 0.42)) 0%,
+      rgba(255, 255, 255, calc(var(--dsh-glass-sheen) * 0.12)) 38%,
+      rgba(255, 255, 255, 0) 66%
+    ),
+    color-mix(in srgb, var(--dsh-glass-tint) calc(var(--dsh-glass-alpha) * 100%), transparent) !important;
+  -webkit-backdrop-filter: blur(var(--dsh-glass-blur)) saturate(var(--dsh-glass-saturate)) brightness(var(--dsh-glass-brightness));
+  backdrop-filter: blur(var(--dsh-glass-blur)) saturate(var(--dsh-glass-saturate)) brightness(var(--dsh-glass-brightness));
+  border: 0.5px solid rgba(255, 255, 255, var(--dsh-glass-border)) !important;
+  border-radius: var(--dsh-glass-radius) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, calc(var(--dsh-glass-sheen) * 1.1)),
+    0 14px 34px -18px rgba(0, 0, 0, 0.6) !important;
+}
+/* rows must not each carry their own backdrop filter */
+[data-dsh-glass-popup] [class*="_cell"] {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  background-color: transparent !important;
+}
+
+/* ---------- right sidebar: one glass pane ----------
+   It is a navigation surface, like the left sidebar, and was painting fully
+   opaque over the wallpaper. Same shape of treatment as the workspace block: the
+   panel holds the material and the rows inside stay flat.
+
+   Stacking: the panel is dropped to z-index -1 and the column gets its own
+   stacking context, so the material sits above the wallpaper layers (z -2 / -1)
+   but below the panel's own content. Without the isolate the glass would land
+   behind the wallpaper and disappear. */
+[class*="rightbarCol"] {
+  isolation: isolate;
+}
+
+[data-dsh-glass-rightbar] {
+  position: relative;
+  z-index: -1;
+
+  /* A softer, darker glass than the left sidebar: at the shared token values the
+     pane read as a bright grey sheet over a dark application. It now sits close to
+     the surrounding surface and carries only a subtle glow from the top-left, so
+     it reads as ambient light rather than as a panel. The blur is reduced with it
+     - less frosted, less bright - which is what "lighter than the composer" means
+     here, since the composer uses blur(26px) saturate(210%) brightness(1.10). */
+  background:
+    radial-gradient(
+      130% 95% at 10% 0%,
+      rgba(255, 255, 255, 0.065) 0%,
+      rgba(255, 255, 255, 0.022) 45%,
+      rgba(255, 255, 255, 0) 74%
+    ),
+    linear-gradient(
+      158deg,
+      rgba(255, 255, 255, 0.030) 0%,
+      rgba(255, 255, 255, 0.010) 42%,
+      rgba(255, 255, 255, 0) 70%
+    ),
+    color-mix(in srgb, var(--dsh-glass-tint) 26%, transparent) !important;
+
+  -webkit-backdrop-filter: blur(12px) saturate(1.25) brightness(1.015);
+  backdrop-filter: blur(12px) saturate(1.25) brightness(1.015);
+
+  border: 0.5px solid rgba(255, 255, 255, 0.055) !important;
+  border-radius: 16px !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    0 12px 30px -20px rgba(0, 0, 0, 0.45) !important;
+}
+
+/* Rows and entries inside the pane carry no material of their own. */
+[data-dsh-glass-rightbar] [class*="_entry"],
+[data-dsh-glass-rightbar] [class*="_row"],
+[data-dsh-glass-rightbar] [class*="_tab"] {
+  background-color: transparent !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  transition: box-shadow 200ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+/* Hover feedback: a pointer-following glow, the same shape as the composer's
+   specular, instead of a uniform white wash across the row.
+   It is weaker than the composer's on purpose (0.10 against 0.75 at the source,
+   and a soft falloff), so it reads as light near the cursor rather than as a
+   filled block. Only the message field of the glow changes - background-color is
+   left alone so the panel underneath is untouched. */
+[data-dsh-glass-rightbar] [class*="_entry"],
+[data-dsh-glass-rightbar] [class*="_row"] {
+  position: relative;
+}
+
+[data-dsh-glass-rightbar] [class*="_entry"]::after,
+[data-dsh-glass-rightbar] [class*="_row"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: var(--dsh-glint, 0);
+  transition: opacity 240ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  background: radial-gradient(
+    150px circle at var(--dsh-gx, 50%) var(--dsh-gy, 50%),
+    rgba(255, 255, 255, 0.085) 0%,
+    rgba(255, 255, 255, 0.045) 32%,
+    rgba(255, 255, 255, 0) 68%
+  );
+}
+
+/* ---------- composer entrance: DELETED ----------
+   This section held the entrance keyframes (dsh-glass-enter-up and a transform-only variant),
+   the --dsh-glass-enter-duration/-shift/-ease variables, the seat class that applied them, the
+   guard that kept the gesture off the glass element itself, and a reduced-motion override.
+
+   Deleted with the animation module, and the variables went with it so the stylesheet does not
+   keep advertising knobs that nothing reads.
+
+   The one rule worth remembering is why the gesture never went on [data-dsh-glass="composer"]:
+   that element carries backdrop-filter, and animating such an element makes Chromium composite
+   it separately, interrupting backdrop sampling so the glass blinks out for the whole gesture.
+   Any replacement must animate an ANCESTOR instead.
+
+   The old CSS is in glass-plugin/_animation-backup/50-glass-surfaces.css. */
+
+/* ---------- GPU A/B switch: is the cost the blur, or this plugin's scripting? ----------
+   backdrop-filter is genuinely expensive: every animated glass surface re-blurs a large area
+   on every frame, and the cost scales with the blur radius, the area, and whatever sits behind
+   it. So when something stutters, "the GPU" is a real candidate rather than an excuse.
+
+   Adding data-dsh-glass-perf="low" to <html> drops the refraction to a plain translucent fill
+   and hides the decorative layers, changing nothing else - same layout, same animation, same
+   scripting. If a stutter survives that, the GPU is not the cause and the search moves back to
+   the main thread; the scan-cost diagnostic tells the two apart with numbers rather than
+   impressions. */
+html[data-dsh-glass-perf="low"] {
+  --dsh-glass-blur: 0px;
+  --dsh-glass-saturate: 1;
+  --dsh-glass-brightness: 1;
+}
+
+html[data-dsh-glass-perf="low"] .dsh-glass-topbar-layer,
+html[data-dsh-glass-perf="low"] [data-dsh-glass-block],
+html[data-dsh-glass-perf="low"] [data-dsh-glass-surface],
+html[data-dsh-glass-perf="low"] [data-dsh-glass-rightbar],
+html[data-dsh-glass-perf="low"] [data-dsh-glass-topbar],
+html[data-dsh-glass-perf="low"] [data-dsh-glass="composer"] {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+html[data-dsh-glass-perf="low"] #dsh-glass-backdrop,
+html[data-dsh-glass-perf="low"] #dsh-glass-glow {
+  display: none !important;
+}
+
+/* ---------- accessibility: honour the OS preference ---------- */
+@media (prefers-reduced-transparency: reduce) {
+  [data-dsh-glass-block],
+  [data-dsh-glass-surface],
+  [data-dsh-glass-rightbar],
+  [data-dsh-glass-card],
+  .dsh-glass-topbar-layer,
+  [data-dsh-glass-popup] [class*="_material"] {
+    background: var(--dsh-glass-tint) !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-dsh-glass-surface] {
+    transition: none;
+  }
+}

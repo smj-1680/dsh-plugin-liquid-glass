@@ -1,0 +1,286 @@
+/* ============================================================
+   DSH 液态玻璃 · 输入框（正式版）
+   ------------------------------------------------------------
+   设计依据：Apple Liquid Glass（WWDC25）
+     · 折射   —— backdrop-filter 提饱和 + SVG 位移贴图（见 91-liquid.js）
+     · 镜面   —— 指针跟随的高光，替代 iOS 的设备运动高光
+     · 边缘   —— 0.5px 发丝描边 + 上缘内高光（透镜边缘）
+     · 厚度   —— 内阴影 + 外投影配合
+     · 自适应 —— 悬停/聚焦逐级加深
+     · 无障碍 —— 尊重"降低透明度"与"减少动效"
+
+   选择器 [data-dsh-glass="composer"] 由 90-tag-composer.js 打标，
+   不依赖 DSH 的运行期哈希类名。
+
+   还原：删除本文件 + 90/91 两个 js，再 [外观/DIY] → 重新载入。
+   ============================================================ */
+
+/* ============================================================
+   Fallback backdrop — animated stripes
+   ------------------------------------------------------------
+   A transparent material needs something behind it to be worth anything. The app's
+   background is a flat dark colour and the wallpaper plugin ships disabled, so clear
+   glass would read as a plain dark panel. This is that something.
+
+   Layering (the same shape as the glow below, which is already proven to be sampled
+   by the composer's backdrop-filter):
+     z-index -3      this stripe layer
+     z-index -2 / -1 a real wallpaper layer / the glow
+     glass surfaces  sample everything painted beneath them
+
+   YIELDS TO A REAL WALLPAPER: client.js adds .dsh-glass-foreign-backdrop to <body>
+   as soon as any other full-window fixed layer exists, which switches this off. That
+   detection is structural - it never reads another plugin's attributes or variables -
+   so the glass works with no wallpaper at all and steps aside when one appears.
+
+   Tuning: --dsh-stripes-alpha (strength), --dsh-stripes-period (spacing),
+   --dsh-stripes-duration (drift speed), --dsh-stripes-shift-x/y (travel).
+   ============================================================ */
+#dsh-glass-backdrop {
+  position: fixed;
+  inset: -25%;
+  pointer-events: none;
+  z-index: -3;
+
+  /* A base wash beneath the stripes. The app's own background is a flat near-black
+     and the stripes were drawn at a low alpha over it, so the glass blur flattened
+     them out entirely - the layer existed but was effectively invisible. Lifting the
+     whole area slightly gives the stripes something to sit on. */
+  background-color: rgba(22, 26, 36, calc(var(--dsh-stripes-alpha, 1) * 0.55));
+
+  background-image:
+    repeating-linear-gradient(
+      118deg,
+      rgba(255, 255, 255, calc(var(--dsh-stripes-alpha, 1) * 0.20)) 0px,
+      rgba(255, 255, 255, 0) calc(var(--dsh-stripes-period, 260px) * 0.42),
+      rgba(120, 170, 255, calc(var(--dsh-stripes-alpha, 1) * 0.14)) calc(var(--dsh-stripes-period, 260px) * 0.62),
+      rgba(255, 255, 255, 0) var(--dsh-stripes-period, 260px)
+    ),
+    repeating-linear-gradient(
+      28deg,
+      rgba(255, 190, 140, calc(var(--dsh-stripes-alpha, 1) * 0.10)) 0px,
+      rgba(255, 255, 255, 0) calc(var(--dsh-stripes-period, 260px) * 0.5),
+      rgba(140, 255, 220, calc(var(--dsh-stripes-alpha, 1) * 0.08)) var(--dsh-stripes-period, 260px)
+    );
+
+  will-change: transform;
+  animation: dsh-glass-stripes-drift var(--dsh-stripes-duration, 90s) linear infinite;
+}
+
+@keyframes dsh-glass-stripes-drift {
+  0%   { transform: translate3d(0, 0, 0); }
+  50%  { transform: translate3d(var(--dsh-stripes-shift-x, 40px), var(--dsh-stripes-shift-y, -30px), 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+
+/* A real background provider is present: BOTH of this plugin's decorative layers
+   step aside. The stripes were the obvious one, but the demo glow matters just as
+   much - it is a strong blue/orange/cyan wash, and once a wallpaper is behind the
+   glass that wash reads as coloured blotches inside every surface. With a real
+   background there is nothing for it to stand in for. */
+body.dsh-glass-foreign-backdrop #dsh-glass-backdrop,
+body.dsh-glass-foreign-backdrop #dsh-glass-glow {
+  display: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #dsh-glass-backdrop {
+    animation: none;
+  }
+}
+
+/* ---------- 本体：常驻玻璃 ----------
+   材质：纯净玻璃（去磨砂）
+   ------------------------------------------------------------
+   磨砂感来自"白色叠加"，不是来自模糊。所以这里做的是：
+     · 填充白雾  46% → 13%      让背后的条纹真正透上来
+     · 内部白晕  0.26 → 0       这是磨砂感的第二大来源，直接去掉
+     · 顶部内高光 0.34 → 0.20   保留一点，玻璃靠"边缘厚度"才有实体感
+     · blur      26px → 32px    保留并加强：清晰度靠它压住背后的杂乱
+     · saturate  210% → 240%    提饱和是"玻璃感"的关键，比白雾有效得多
+   box-shadow 的【层数必须保持 7 层】—— 聚焦蓝环的渐显是靠逐层插值实现的。 */
+[data-dsh-glass="composer"] {
+  position: relative;
+  isolation: isolate;
+
+  /* 材质：几乎不留白雾，让背后的东西透上来 */
+  background: color-mix(in srgb, var(--dsw-alias-bg-layer-2, #22242a) 13%, transparent) !important;
+
+  /* 折射：模糊 + 大幅提饱和，把背后的颜色"挤"出来 */
+  -webkit-backdrop-filter: blur(32px) saturate(240%) brightness(1.06) contrast(1.04);
+  backdrop-filter: blur(32px) saturate(240%) brightness(1.06) contrast(1.04);
+
+  /* 透镜边缘：去掉白雾后，边缘要更明确一些，否则整块会显得没有形体 */
+  border: 0.5px solid rgba(255, 255, 255, 0.28) !important;
+  /* 注意：这里绝对不要写 border-radius —— 会覆盖 DSH 自己的圆角，
+     inherit 取的是父元素的值，而父容器没有圆角，结果就成了直角。
+     圆角保持组件原有的即可；下面两个伪元素用 inherit 才是对的。 */
+
+  /* 厚度：上缘内高光 + 下缘暗边 + 竖向渐薄 + 外投影
+     ------------------------------------------------------------
+     关键：这里**预先**写好了聚焦时要用的蓝色光环（第一层），只是把它的
+     透明度设为 0。这样静置态与聚焦态的阴影"层数完全一致"，浏览器才能
+     在两组阴影之间做逐层插值 —— 蓝环就会**渐显**，而不是突然跳出来。
+     如果以后要加/减任何一层阴影，务必两个状态一起改，否则又会变成硬切。
+     第 4 层原本是内部大面积白晕（磨砂的主因），现在保持层数但清零。 */
+  box-shadow:
+    0 0 0 0 rgba(77, 107, 254, 0),
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.20),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.05),
+    inset 0 18px 30px -20px rgba(255, 255, 255, 0),
+    inset 0 -22px 34px -24px rgba(0, 0, 0, 0.42),
+    0 22px 48px -16px rgba(0, 0, 0, 0.55),
+    0 2px 8px -2px rgba(0, 0, 0, 0.38) !important;
+
+  /* 缓动：分层错开，接近 Apple 那种"材质先动、光晕随后"的呼吸感
+     · 底色/描边  420ms 平滑减速
+     · 阴影       560ms 更长的 ease-out，让蓝环慢慢亮起而不是弹出来
+     注意 box-shadow 与 background/border 用不同时长，是有意为之。 */
+  transition:
+    background-color 420ms cubic-bezier(.16, 1, .3, 1),
+    border-color 420ms cubic-bezier(.16, 1, .3, 1),
+    box-shadow 560ms cubic-bezier(.22, 1, .36, 1);
+}
+
+/* ---------- 折射层：真正的"液态"扭曲 ----------
+   背景位移贴图由 91-liquid.js 注入（SVG feTurbulence + feDisplacementMap）。
+   这里只负责把它挂上去；滤镜不存在时自动退化为无位移。 */
+[data-dsh-glass="composer"]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+  backdrop-filter: url(#dsh-liquid-refraction) blur(6px) saturate(150%);
+  -webkit-backdrop-filter: url(#dsh-liquid-refraction) blur(6px) saturate(150%);
+  opacity: 0.9;
+}
+
+/* ---------- 镜面高光：跟随指针 ----------
+   91-liquid.js 会把指针位置写进 --dsh-gx / --dsh-gy（容器内百分比）。
+   浓度换算过一轮：整体透明度(opacity) × 渐变峰值(alpha) 才是最终强度。
+   现在约为原来的 40%，是一道"掠过"的淡光，而不是一团光斑。 */
+[data-dsh-glass="composer"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: var(--dsh-glint, 0);
+  /* 高光的淡入淡出比主体稍快一点，但同样走 ease-out，
+     避免"瞬间点亮"的突兀感 */
+  transition: opacity 380ms cubic-bezier(.16, 1, .3, 1);
+  background:
+    radial-gradient(
+      180px circle at var(--dsh-gx, 50%) var(--dsh-gy, 50%),
+      rgba(255, 255, 255, 0.13),
+      rgba(255, 255, 255, 0.045) 40%,
+      transparent 70%
+    );
+}
+
+/* ---------- 悬停：提亮一档 ---------- */
+@media (hover: hover) {
+  [data-dsh-glass="composer"]:hover {
+    background: color-mix(in srgb, var(--dsw-alias-bg-layer-2, #22242a) 17%, transparent) !important;
+    border-color: rgba(255, 255, 255, 0.34) !important;
+    /* 与静置态同为 7 层，蓝环仍是 0 —— 悬停不上蓝，只有聚焦才渐显 */
+    box-shadow:
+      0 0 0 0 rgba(77, 107, 254, 0),
+      inset 0 1.5px 0 rgba(255, 255, 255, 0.26),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.06),
+      inset 0 20px 34px -20px rgba(255, 255, 255, 0),
+      inset 0 -22px 34px -24px rgba(0, 0, 0, 0.46),
+      0 26px 56px -16px rgba(0, 0, 0, 0.60),
+      0 2px 10px -2px rgba(0, 0, 0, 0.42) !important;
+  }
+}
+
+/* ---------- 聚焦：最亮一档 + 蓝环渐显 ----------
+   蓝环的"渐显"靠两件事：层数与静置态完全一致（7 层），
+   以及只改变这一层的颜色透明度（0 → 0.22）。
+   浏览器于是按层插值，视觉上就是柔和地亮起来。 */
+[data-dsh-glass="composer"]:focus-within {
+  background: color-mix(in srgb, var(--dsw-alias-bg-layer-2, #22242a) 20%, transparent) !important;
+  border-color: rgba(122, 170, 255, 0.52) !important;
+  box-shadow:
+    0 0 0 3px rgba(77, 107, 254, 0.22),
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.30),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.07),
+    inset 0 22px 38px -20px rgba(255, 255, 255, 0),
+    inset 0 -24px 36px -24px rgba(0, 0, 0, 0.46),
+    0 28px 60px -16px rgba(0, 0, 0, 0.64),
+    0 2px 10px -2px rgba(0, 0, 0, 0.42) !important;
+}
+
+/* ---------- 无障碍降级 ---------- */
+@media (prefers-reduced-transparency: reduce) {
+  [data-dsh-glass="composer"],
+  [data-dsh-glass="composer"]:hover,
+  [data-dsh-glass="composer"]:focus-within {
+    background: var(--dsw-alias-bg-layer-2, #22242a) !important;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  [data-dsh-glass="composer"]::before,
+  [data-dsh-glass="composer"]::after { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-dsh-glass="composer"],
+  [data-dsh-glass="composer"]::after { transition: none; }
+}
+
+/* ============================================================
+   试点用"背后有东西"层
+   ------------------------------------------------------------
+   玻璃要看得见，背后必须有内容可折射。这一层由 91-liquid.js 插入，
+   用来在没有背景图时也能看到折射效果。
+   接入背景图后，把 91-liquid.js 里的 glow 开关关掉即可。
+   ============================================================ */
+#dsh-glass-glow {
+  position: fixed;
+  left: 50%;
+  bottom: 40px;
+  width: min(1100px, 88vw);
+  height: 340px;
+  transform: translateX(-50%);
+  pointer-events: none;
+  z-index: -1;
+  border-radius: 999px;
+  background:
+    radial-gradient(60% 100% at 22% 70%, rgba(77, 107, 254, 0.95), transparent 70%),
+    radial-gradient(52% 92% at 72% 66%, rgba(255, 138, 76, 0.80), transparent 72%),
+    radial-gradient(44% 80% at 48% 60%, rgba(96, 255, 214, 0.60), transparent 74%);
+  filter: blur(34px) saturate(150%);
+}
+
+/* ============================================================
+   Readability floor — the composer over a real image
+   ------------------------------------------------------------
+   The clear-glass values above were tuned against the app's flat dark background,
+   where nothing sits behind the glass to compete with the text. Behind a wallpaper the
+   same 13% fill is not enough for the placeholder and the controls to stay readable.
+
+   client.js adds .dsh-glass-over-image whenever another background provider is
+   detected, and the fill comes back up here - well below the old frosted 46%, with the
+   blur and saturation raised to hold the image back without making the surface milky.
+
+   Raise the percentage if text is still hard to read over a bright wallpaper.
+   ============================================================ */
+body.dsh-glass-over-image [data-dsh-glass="composer"] {
+  background: color-mix(in srgb, var(--dsw-alias-bg-layer-2, #22242a) 42%, transparent) !important;
+  -webkit-backdrop-filter: blur(34px) saturate(220%) brightness(1.04) contrast(1.04);
+  backdrop-filter: blur(34px) saturate(220%) brightness(1.04) contrast(1.04);
+}
+
+@media (hover: hover) {
+  body.dsh-glass-over-image [data-dsh-glass="composer"]:hover {
+    background: color-mix(in srgb, var(--dsw-alias-bg-layer-2, #22242a) 46%, transparent) !important;
+  }
+}
+
+body.dsh-glass-over-image [data-dsh-glass="composer"]:focus-within {
+  background: color-mix(in srgb, var(--dsw-alias-bg-layer-2, #22242a) 50%, transparent) !important;
+}

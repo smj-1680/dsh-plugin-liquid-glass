@@ -1,0 +1,108 @@
+/* ============================================================
+   DSH 液态玻璃 · 助手回复卡片（双层结构：静态玻璃 + 可动画内容）
+   ------------------------------------------------------------
+   为什么必须拆两层
+   ------------------------------------------------------------
+   之前把 backdrop-filter 和动画都放在同一个元素上，结果玻璃一会
+   消失一会出现。原因是 Chromium 在给带 backdrop-filter 的元素做
+   opacity / transform 动画时，会把它提升为独立合成层，采样被中断。
+
+   正确做法是把职责分开（已用真实 DOM 验证）：
+     · 玻璃层 #dsh-card-glass  —— 只负责材质，**完全静态**，永不动画
+     · 内容层 [class*="_column"] —— 只负责排版，**不带任何玻璃**，
+                                   于是可以安全地做 transform / opacity 动画
+
+   FLIP 平滑生长由 91-liquid.js 在内容层上执行。
+
+   实测（1600x1000 视口）：
+     原列 845px 居中 → 收窄到 900px、居中、无横向溢出
+     玻璃层与列几何逐帧对齐（514,106 / 847x471）
+   ============================================================ */
+
+/* ---------- 内容层：只有排版，方便动画 ---------- */
+[class*="_column"],
+[data-dsh-card="conversation"] {
+  box-sizing: border-box !important;
+  width: 900px !important;
+  max-width: 900px !important;
+  margin: 14px auto !important;
+  padding: 18px 22px !important;
+
+  /* 全部材质交给玻璃层，这里一律清空 */
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+
+  /* 生长方向：从上往下展开，符合"文字在往下长"的直觉 */
+  transform-origin: 50% 0%;
+  position: relative;
+  z-index: 1;
+  /* 注意：这里【不要】加 isolation。玻璃层的宿主是列的父节点
+     （client.js 的 ensureGlassHost 用 col.offsetParent），并不在列内部；
+     给列建独立层叠上下文会把列整体打包成一个单元，反而把玻璃盖住。 */
+}
+
+/* ---------- 玻璃层：静态材质，几何由 JS 跟随内容层 ---------- */
+#dsh-card-glass {
+  position: absolute;
+  pointer-events: none;
+  /* 材质必须画在正文【之下】。
+     z-index:0 是定位元素，会盖在流内的消息块之上；而它自带 backdrop-filter，
+     被它罩住的内容就会被糊掉 —— 再加上分段比卡片本身高，相邻轮次的段落与表格
+     都被它模糊，看起来"只剩一个区块"。改成 -1 后它退到内容之下、壁纸之上，
+     列的 isolation 保证两者不在同一个层叠上下文里比较。 */
+  z-index: -1;
+  border-radius: 18px;
+  overflow: hidden;
+
+  background:
+    linear-gradient(
+      158deg,
+      rgba(255, 255, 255, 0.04) 0%,
+      rgba(255, 255, 255, 0.012) 36%,
+      rgba(255, 255, 255, 0.00) 64%
+    ),
+    /* 纯净玻璃（去磨砂）：52% → 14%。助手卡片底下是整片正文，是三个材质里
+       最需要保持可读性的一个，所以留得比输入框略多一点。 */
+    color-mix(in srgb, var(--dsw-alias-bg-layer-2, #22242a) 14%, transparent);
+
+  -webkit-backdrop-filter: blur(26px) saturate(220%) brightness(1.04);
+  backdrop-filter: blur(26px) saturate(220%) brightness(1.04);
+
+  border: 0.5px solid rgba(255, 255, 255, 0.20);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.03),
+    0 12px 30px -16px rgba(0, 0, 0, 0.46);
+}
+
+/* ---------- readability floor: assistant card over a real image ----------
+   This is the surface with the most text behind it, so it needs the highest floor of
+   the three. Over a wallpaper a 14% fill lets the picture come through the body text;
+   the fill returns here, still far below the old frosted 52%. */
+body.dsh-glass-over-image #dsh-card-glass,
+body.dsh-glass-over-image .dsh-card-glass-seg {
+  background:
+    linear-gradient(
+      158deg,
+      rgba(255, 255, 255, 0.05) 0%,
+      rgba(255, 255, 255, 0.015) 36%,
+      rgba(255, 255, 255, 0.00) 64%
+    ),
+    color-mix(in srgb, var(--dsw-alias-bg-layer-2, #22242a) 50%, transparent);
+  -webkit-backdrop-filter: blur(30px) saturate(200%) brightness(1.02);
+  backdrop-filter: blur(30px) saturate(200%) brightness(1.02);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+/* ---------- 无障碍降级 ---------- */
+@media (prefers-reduced-transparency: reduce) {
+  #dsh-card-glass {
+    background: var(--dsw-alias-bg-layer-2, #22242a);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}

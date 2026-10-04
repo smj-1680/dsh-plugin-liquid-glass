@@ -1,0 +1,121 @@
+{
+  "_comment": [
+    "官方发布的完整性清单。用来判定\"本地文件是否被修改过\"。",
+    "校验：node verify-integrity.mjs（或 npm 包根目录下的同名脚本）",
+    "⚠ 若校验不通过，说明本地代码与官方发布不一致 —— 由此产生的任何问题，",
+    "   由修改者自行承担，开发者只对未修改的官方版本负责（见 LICENSE）。"
+  ],
+  "package": "dsh-plugin-liquid-glass",
+  "version": "0.1.4",
+  "license": "MIT",
+  "generatedAt": "2026-10-04T08:40:33.109Z",
+  "fileCount": 26,
+  "totalBytes": 2599289,
+  "overallFingerprint": "ad76a00d5d0aa14e2ec8d5addcde8244140ed4eb5094f71b68158de52eff7b34",
+  "files": {
+    "AUTHOR-NOTICE.txt": {
+      "sha256": "34aef4549130a8a78806d68df6de12a393fa8c7ca83d8378f38db3045bb8e5e8",
+      "bytes": 3210
+    },
+    "LICENSE": {
+      "sha256": "4f9bb10c03694ecba01acd034191d101e269048961c88c22b6f8eb4dd8b0368f",
+      "bytes": 2471
+    },
+    "README.en.md": {
+      "sha256": "4a574b0451f27089b37dedc64495aaeddd5bdf948f445d4aa4498f5b8688af4b",
+      "bytes": 5614
+    },
+    "README.md": {
+      "sha256": "ab247a52f65affa4398575f0635c29d629f54c85ba4c4cc06c7c424231b1475c",
+      "bytes": 11756
+    },
+    "artifacts/10-glass-composer.css": {
+      "sha256": "7e91134aba9c04d15c70d7de2c2a1277432b57a98b7b483a6936914d3b26d85e",
+      "bytes": 13544
+    },
+    "artifacts/20-glass-bubble-user.css": {
+      "sha256": "ed11966d8cedc389480f3ca274bba483a613db0573aaeb3461a396e1c1b53ee8",
+      "bytes": 4658
+    },
+    "artifacts/30-glass-bubble-agent.css": {
+      "sha256": "b70d25e3912c7fd1912dd0860118056d02f5dc90073c90391c7a11e446be27ac",
+      "bytes": 4637
+    },
+    "artifacts/40-ready-gate.css": {
+      "sha256": "5bffc4d807bc59f806323ee47b2248010ccc77ea2f38183941050c15c1e650b4",
+      "bytes": 697
+    },
+    "artifacts/50-glass-surfaces.css": {
+      "sha256": "2ffb6b3b07f1518a2a08d4d43551e55fef55e48c4bb15d94fa9b69b0fe406939",
+      "bytes": 37596
+    },
+    "artifacts/bootstrap.js": {
+      "sha256": "3bd40650f0e2a60b06469c42d422c6afcced0bd4c87f4a44320e10e2b8786323",
+      "bytes": 37987
+    },
+    "artifacts/client.js": {
+      "sha256": "bce9a3832bde946858abeed61d159b21d2487f353f46581b44be99dcc7c79d7e",
+      "bytes": 146868
+    },
+    "artifacts/deepseek-cyberpunk-intro.mp4": {
+      "sha256": "beabf5956e0b467e9f06f467b3f5b7a682abb6555c1b16aee1c27f7e5b334a58",
+      "bytes": 1856280
+    },
+    "cordis.patch.yml": {
+      "sha256": "aa591b59c16a5f540b05ea6c9f72e183feec47ce70abc049a89051e320b135c6",
+      "bytes": 1287
+    },
+    "docs/composer-entrance.md": {
+      "sha256": "9e035d98ad3c8af4912d906a3e6c5b68067fdf7cbb1d0ba9eab441368af7bbeb",
+      "bytes": 14279
+    },
+    "docs/entrance-contract.md": {
+      "sha256": "f82a10065c0fa5a225c9200ce3b70e86925122f3ff36a852d821d6fa5c5c608a",
+      "bytes": 9668
+    },
+    "embed/ENABLED": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "embed/MANIFEST.json": {
+      "sha256": "cc25c17d6be8ecf7fd3c83ed306ec1b2725bd970d304e26e7ebeb933a508e0dd",
+      "bytes": 518
+    },
+    "embed/README-ROLLBACK.md": {
+      "sha256": "8178374ab1d23f3bb6824a8e93245de7c2a12866dca174b2f6c2910ea7402d4b",
+      "bytes": 3514
+    },
+    "embed/install.js": {
+      "sha256": "8347070b08668f9c1e253f2da50c517c43707e31ee9bf6de65ebdd837557b049",
+      "bytes": 7310
+    },
+    "embed/ui.css": {
+      "sha256": "ecc573ed3a17a5a08537b8b627b87abc93c4c6c491f2f7794bdc23b8bef51e7d",
+      "bytes": 11161
+    },
+    "embed/ui.html": {
+      "sha256": "66f5b9b101162026340330bb11ca4cf6c6d135ca08cd132d8afbc40315190631",
+      "bytes": 5371
+    },
+    "embed/ui.js": {
+      "sha256": "d0de092fa96063061603f49d90c7117a8f4c0e4d58b943b6249a6914df6cbeed",
+      "bytes": 15619
+    },
+    "lib/client.js": {
+      "sha256": "44579e65263761ce91f331e2c12a1127d16570f83d040c6c8a0f05ae8f23f72d",
+      "bytes": 363649
+    },
+    "lib/index.js": {
+      "sha256": "aa2ec74654fb8d9766ace2fc01e48f6fbbb47485d851085dd363456bc0233bf5",
+      "bytes": 38256
+    },
+    "package.json": {
+      "sha256": "6cc587305e2db5d8577eca4d62aa0aad6edc25ee73b382cf03eed96b9c1da15f",
+      "bytes": 2295
+    },
+    "release-manifest.json": {
+      "sha256": "5229b860cf9c543011947e99a124780f5754cd508933cfa6a6cfd12afab1278f",
+      "bytes": 1044
+    }
+  }
+}

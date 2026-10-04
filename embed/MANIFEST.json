@@ -1,0 +1,18 @@
+{
+  "generatedAt": "2026-10-01T16:18:56.088Z",
+  "source": "E:/deepseek-V4-flash/DSH-App/tmp-ds-site/full-ui-full.html",
+  "files": {
+    "ui.css": {
+      "size": 11161,
+      "sha256": "ecc573ed3a17a5a08537b8b627b87abc93c4c6c491f2f7794bdc23b8bef51e7d"
+    },
+    "ui.html": {
+      "size": 5371,
+      "sha256": "66f5b9b101162026340330bb11ca4cf6c6d135ca08cd132d8afbc40315190631"
+    },
+    "ui.js": {
+      "size": 15182,
+      "sha256": "0ab4beabf78c60e8e274d2bdbd4668ca9b4d8a13617f1e505252733ffe91d4eb"
+    }
+  }
+}

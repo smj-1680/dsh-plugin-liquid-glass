@@ -1,0 +1,48 @@
+﻿# 版本库排除清单。
+#
+# ⚠ 为什么这个文件对本插件特别重要：
+#   如果用户用 github: 源安装，pnpm 会拉取【整个仓库】—— 没有任何裁剪机制。
+#   而仓库里长期住着约 13MB 的开发产物（诊断日志、手工备份、UI 抓取 dump、
+#   历史归档）。它们一旦提交，每个从 GitHub 安装的用户都要下载。
+#   npm 侧靠 package.json 的 files 白名单 + .npmignore 裁剪；
+#   GitHub 侧只能靠这个 .gitignore + 把归档目录移出仓库。
+
+# ---- 运行期诊断日志（持续增长，且含本机路径等信息）----
+*.log
+startup-timeline.log
+embed-status.log
+
+# ---- 对外公开版的生成副本 ----
+dist/
+
+# ---- 一次性 UI 抓取 dump（可重新生成）----
+ui-capture-*.json
+layout.jsonl
+
+# ---- 手工备份与历史归档（这些【应该移出仓库】，见 README 的说明）----
+*.before-prune
+*.before-restore
+*.glass-fixed
+*.bak
+_animation-backup/
+_material-frosted-backup/
+_archive-*/
+_backup-*/
+
+# ---- 依赖与缓存 ----
+node_modules/
+__pycache__/
+*.pyc
+
+# ---- 编辑器 / 系统 ----
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# ---- 诊断落盘样本（tapIndex 探针产物，纯 HTML dump）----
+tap-sample-*.txt
+
+# ---- 从官方安装包提取的参考资料（含 DSH 版权内容，不随仓库分发）----
+OFFICIAL-MENUS.md
+official-menus.json

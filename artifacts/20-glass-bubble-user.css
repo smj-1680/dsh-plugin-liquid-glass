@@ -1,0 +1,113 @@
+/* ============================================================
+   DSH 液态玻璃 · 用户消息气泡
+   ------------------------------------------------------------
+   结构（实测确认，两个节点）：
+     内层 [data-dsh-glass="bubble-user"]  ← 真正可见的气泡壳（"你好"那块）
+     外层 [data-dsh-glass="bubble-row"]   ← 整条消息行（含时间戳 + 复制按钮）
+
+   关键：外层行自带不透明底色，会把内层的玻璃**盖住**。
+   所以这里必须做两件事：
+     1. 外层行：只清除遮挡用的底色，**不给任何材质**
+     2. 内层壳：单独上玻璃
+
+   与输入框的区别（重要）：
+     输入框是"导航层"，悬浮在滚动内容之上，背后有连续滚过的东西可折射；
+     气泡是"内容层"，背后只有聊天底。Apple 规范也明确：玻璃只用于导航层。
+
+   因此气泡做的是"玻璃外观"而不是真折射：
+     · 自发光渐变 + 上缘高光 + 发丝描边 + 内阴影厚度
+     · 不挂 SVG 位移滤镜 —— 那会扭曲正文，内容层不能这么做
+
+   选择器由 91-liquid.js 打标。
+   ============================================================ */
+
+/* ---------- 外层消息行：只清掉遮挡，绝不上材质 ---------- */
+[data-dsh-glass="bubble-row"] {
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+/* ---------- 内层气泡壳：玻璃本体 ---------- */
+[data-dsh-glass="bubble-user"] {
+  position: relative;
+  isolation: isolate;
+
+  /* 纯净玻璃（去磨砂）：
+     · 白色自发光渐变整体降一档（0.10/0.03 → 0.05/0.015）
+     · 填充 62% → 16%，让气泡背后的条纹透上来
+     · 内部白晕 0.20 → 0（它是磨砂感的第二大来源）
+     · 边缘略提（0.16 → 0.24）：去掉白雾后靠边缘才有形体
+     · blur / saturate 提高，玻璃感来自"透过+提色"，不是来自白 */
+  background:
+    linear-gradient(
+      160deg,
+      rgba(255, 255, 255, 0.05) 0%,
+      rgba(255, 255, 255, 0.015) 34%,
+      rgba(255, 255, 255, 0.00) 62%
+    ),
+    color-mix(in srgb, var(--dsw-alias-bg-layer-3, #2a2d35) 16%, transparent) !important;
+
+  -webkit-backdrop-filter: blur(24px) saturate(230%) brightness(1.05);
+  backdrop-filter: blur(24px) saturate(230%) brightness(1.05);
+
+  /* 透镜边缘：只加描边，绝不碰 border-radius（会覆盖组件圆角） */
+  border: 0.5px solid rgba(255, 255, 255, 0.24) !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.04),
+    inset 0 14px 24px -18px rgba(255, 255, 255, 0),
+    0 10px 26px -14px rgba(0, 0, 0, 0.48) !important;
+
+  transition:
+    background-color 420ms cubic-bezier(.16, 1, .3, 1),
+    border-color 420ms cubic-bezier(.16, 1, .3, 1),
+    box-shadow 480ms cubic-bezier(.22, 1, .36, 1);
+}
+
+/* ---------- 悬停：轻微提亮，提示可交互（复制/引用等） ---------- */
+@media (hover: hover) {
+  [data-dsh-glass="bubble-user"]:hover {
+    border-color: rgba(255, 255, 255, 0.30) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.24),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.05),
+      inset 0 16px 26px -18px rgba(255, 255, 255, 0),
+      0 14px 32px -14px rgba(0, 0, 0, 0.54) !important;
+  }
+}
+
+/* ---------- 无障碍降级 ---------- */
+@media (prefers-reduced-transparency: reduce) {
+  [data-dsh-glass="bubble-user"],
+  [data-dsh-glass="bubble-user"]:hover {
+    background: var(--dsw-alias-bg-layer-3, #2a2d35) !important;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-dsh-glass="bubble-user"] { transition: none; }
+}
+
+/* ---------- readability floor: bubble over a real image ----------
+   The clear-glass values above assume the app's flat dark background. Over a wallpaper
+   a 16% fill leaves the message text fighting the picture, so the fill returns here -
+   still far below the old frosted 62%, with more blur to hold the image back. */
+body.dsh-glass-over-image [data-dsh-glass="bubble-user"] {
+  background:
+    linear-gradient(
+      160deg,
+      rgba(255, 255, 255, 0.06) 0%,
+      rgba(255, 255, 255, 0.02) 34%,
+      rgba(255, 255, 255, 0.00) 62%
+    ),
+    color-mix(in srgb, var(--dsw-alias-bg-layer-3, #2a2d35) 46%, transparent) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(210%) brightness(1.03);
+  backdrop-filter: blur(28px) saturate(210%) brightness(1.03);
+  border-color: rgba(255, 255, 255, 0.30) !important;
+}

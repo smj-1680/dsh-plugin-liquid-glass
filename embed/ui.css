@@ -1,0 +1,185 @@
+/* ================= 顶栏 + 用量（前置任务五） ================= */
+.app-header {
+  position: absolute; left: 0; right: 0; top: 0; height: 48px; z-index: 60;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 14px 0 18px; gap: 12px;
+  border-bottom: .5px solid rgba(255,255,255,.08);
+}
+body.on-light .app-header { border-bottom-color: rgba(0,0,0,.08); }
+.hdr-left { display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1 1 auto; overflow: hidden; }
+.hdr-title { font-size: 15px; font-weight: 500; white-space: nowrap; overflow: hidden;
+  text-overflow: ellipsis; }
+.hdr-mode { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px;
+  padding: 3px 10px; border-radius: 999px;
+  background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12);
+  color: rgba(233,240,255,.86); white-space: nowrap; }
+body.on-light .hdr-mode { background: rgba(0,0,0,.05); border-color: rgba(0,0,0,.10);
+  color: #16233c; }
+.hdr-mode-dot { width: 7px; height: 7px; border-radius: 50%; background: #7f8cff; }
+.hdr-right { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; }
+.hdr-usage { display: inline-flex; align-items: center; gap: 8px; height: 30px;
+  padding: 0 12px; border-radius: 999px; cursor: pointer; font: inherit; font-size: 12.5px;
+  color: rgba(233,240,255,.82);
+  background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12); }
+.hdr-usage:hover { background: rgba(255,255,255,.11); }
+.hdr-usage-sep { width: 1px; height: 14px; background: rgba(255,255,255,.16); }
+/* 上下文计数圆环：独立于用量 chip，紧跟其后（不并进面板） */
+.hdr-ctx { display: inline-flex; align-items: center; gap: 7px; height: 30px;
+  padding: 0 10px 0 8px; border-radius: 10px; cursor: pointer; font: inherit;
+  font-size: 13px; color: rgba(233,240,255,.86);
+  background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12); }
+.hdr-ctx:hover { background: rgba(255,255,255,.11); }
+.hdr-ctx .ring { display: block; flex: 0 0 auto; }
+.hdr-ctx .ring-track { stroke: rgba(255,255,255,.16); }
+.hdr-ctx .ring-fill { stroke: rgba(233,240,255,.88); transition: stroke-dashoffset .25s ease; }
+.hdr-ctx .ring-pct { font-variant-numeric: tabular-nums; }
+body.on-light .hdr-ctx { color: #16233c; background: rgba(0,0,0,.045);
+  border-color: rgba(0,0,0,.10); }
+body.on-light .hdr-ctx:hover { background: rgba(0,0,0,.08); }
+body.on-light .hdr-ctx .ring-track { stroke: rgba(0,0,0,.14); }
+body.on-light .hdr-ctx .ring-fill { stroke: #3a4a66; }
+/* ---- 压缩 >= 2 次：圆环 + 百分比转黄，并在顶栏正下方显示建议条 ---- */
+/* ⚠ 必须显式写 [hidden]，否则自身的 display 会覆盖 HTML hidden 属性（曾经因此一直显示） */
+.ctx-banner[hidden] { display: none; }
+.ctx-banner {
+  position: absolute; left: 0; right: 0; top: 48px; z-index: 70;
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 14px 9px 18px;
+  color: #ffdf8a; background: rgba(60,45,10,.72);
+  border-bottom: 1px solid rgba(255,200,80,.34);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+}
+.cb-text { flex: 1 1 auto; min-width: 0; font-size: 13px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cb-close { flex: 0 0 auto; width: 24px; height: 24px; border-radius: 7px; cursor: pointer;
+  font: inherit; font-size: 13px; line-height: 1; color: inherit;
+  background: transparent; border: 1px solid rgba(255,200,80,.34); }
+.cb-close:hover { background: rgba(255,200,80,.16); }
+body.ctx-warn .hdr-ctx .ring-fill { stroke: #ffcf5a; }
+body.ctx-warn .hdr-ctx .ring-pct { color: #ffdf8a; }
+body.ctx-warn .hdr-ctx { border-color: rgba(255,200,80,.34); }
+body.on-light .ctx-banner { color: #8a5a00; background: rgba(255,244,214,.92);
+  border-bottom-color: rgba(180,120,0,.30); }
+body.on-light .cb-close { border-color: rgba(180,120,0,.30); }
+body.on-light .cb-close:hover { background: rgba(255,190,80,.22); }
+body.on-light.ctx-warn .hdr-ctx .ring-fill { stroke: #b8860b; }
+body.on-light.ctx-warn .hdr-ctx .ring-pct { color: #8a5a00; }
+body.on-light.ctx-warn .hdr-ctx { border-color: rgba(180,120,0,.30); }
+/* ---- 用量监控失败态：三个区域转浅红 + 归零，顶栏下方浅红提示 ---- */
+body.ctx-error .hdr-usage,
+body.ctx-error .hdr-ctx {
+  color: #ff9d9d; background: rgba(255,110,110,.10);
+  border-color: rgba(255,120,120,.42);
+}
+body.ctx-error .hdr-usage:hover,
+body.ctx-error .hdr-ctx:hover { background: rgba(255,110,110,.18); }
+body.ctx-error .hdr-ctx .ring-fill { stroke: #ff9d9d; }
+body.ctx-error .hdr-ctx .ring-pct { color: #ff9d9d; }
+body.ctx-error .hdr-ctx .ring-track { stroke: rgba(255,157,157,.22); }
+body.on-light.ctx-error .hdr-usage,
+body.on-light.ctx-error .hdr-ctx { color: #b3261e; background: rgba(255,110,110,.12);
+  border-color: rgba(179,38,30,.38); }
+body.on-light.ctx-error .hdr-ctx .ring-fill { stroke: #b3261e; }
+body.on-light.ctx-error .hdr-ctx .ring-pct { color: #b3261e; }
+/* 错误提示条（浅红），与黄色建议条同一位置、同一元素 */
+.ctx-banner.is-error {
+  color: #ffb3b3; background: rgba(70,20,20,.72);
+  border-bottom-color: rgba(255,120,120,.42);
+}
+.ctx-banner.is-error .cb-close { border-color: rgba(255,120,120,.42); }
+.ctx-banner.is-error .cb-close:hover { background: rgba(255,110,110,.18); }
+body.on-light .ctx-banner.is-error { color: #b3261e; background: rgba(255,236,234,.95);
+  border-bottom-color: rgba(179,38,30,.30); }
+body.on-light .ctx-banner.is-error .cb-close { border-color: rgba(179,38,30,.30); }
+/* ---- 拉取中态：中性色（不报错、不变红），只做弱化 ---- */
+body.ctx-loading .hdr-usage,
+body.ctx-loading .hdr-ctx { opacity: .55; }
+.ctx-banner.is-loading {
+  color: rgba(215,228,255,.92); background: rgba(30,42,70,.72);
+  border-bottom-color: rgba(140,170,255,.30);
+}
+.ctx-banner.is-loading .cb-close { border-color: rgba(140,170,255,.32); }
+.ctx-banner.is-loading .cb-close:hover { background: rgba(140,170,255,.16); }
+body.on-light .ctx-banner.is-loading { color: #1f3a6b; background: rgba(232,240,255,.95);
+  border-bottom-color: rgba(40,80,160,.24); }
+body.on-light .ctx-banner.is-loading .cb-close { border-color: rgba(40,80,160,.24); }
+body.on-light .hdr-usage { color: #16233c; background: rgba(0,0,0,.045);
+  border-color: rgba(0,0,0,.10); }
+body.on-light .hdr-usage-sep { background: rgba(0,0,0,.14); }
+.hdr-icon { width: 30px; height: 30px; border-radius: 8px; cursor: pointer; font: inherit;
+  color: rgba(233,240,255,.75); background: transparent; border: 1px solid transparent; }
+.hdr-icon:hover { background: rgba(255,255,255,.08); }
+body.on-light .hdr-icon { color: rgba(16,24,40,.7); }
+body.on-light .hdr-icon:hover { background: rgba(0,0,0,.06); }
+
+/* 会话统计面板：向下延展 + 顶层图层（z-index 高于所有玻璃面与菜单） */
+.usage-panel {
+  position: fixed; z-index: 9000; min-width: 300px; padding: 6px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--dsh-glass-tint, #141720) 92%, transparent);
+  border: 1px solid rgba(255,255,255,.16);
+  box-shadow: 0 18px 48px rgba(0,0,0,.5);
+  -webkit-backdrop-filter: blur(24px) saturate(180%); backdrop-filter: blur(24px) saturate(180%);
+}
+.usage-panel[hidden] { display: none; }
+.up-head { display: flex; align-items: center; gap: 8px; padding: 9px 10px 10px;
+  font-size: 13.5px; color: rgba(240,245,255,.95); }
+.up-sep { height: 1px; margin: 4px 8px; background: rgba(255,255,255,.10); }
+body.on-light .up-sep { background: rgba(0,0,0,.08); }
+
+/* ---- 上下文已用 ---- */
+.ctx-block { padding: 8px 10px 10px; }
+.ctx-head { display: flex; align-items: baseline; justify-content: space-between; gap: 18px; }
+.ctx-title { font-size: 13.5px; color: rgba(240,245,255,.95); }
+.ctx-title b { font-weight: 600; font-variant-numeric: tabular-nums; }
+.ctx-abs { font-size: 12.5px; color: rgba(233,240,255,.62); font-variant-numeric: tabular-nums; }
+.ctx-bar { height: 6px; border-radius: 999px; margin: 9px 0 10px;
+  background: rgba(255,255,255,.10); overflow: hidden; }
+.ctx-bar > span { display: block; height: 100%; border-radius: 999px;
+  background: linear-gradient(90deg, #4b7bff, #6f9bff); transition: width .25s ease; }
+.ctx-legend { display: flex; flex-direction: column; gap: 2px; }
+.ctx-row { display: flex; align-items: center; gap: 8px; padding: 5px 0; font-size: 13px; }
+.ctx-swatch { width: 11px; height: 11px; border-radius: 3px; flex: 0 0 auto; }
+.ctx-swatch.s-sys { background: #cfd6e4; }
+.ctx-swatch.s-tool { background: #9b8cff; }
+.ctx-swatch.s-msg { background: #4b7bff; }
+.ctx-k { flex: 1 1 auto; color: rgba(233,240,255,.80); }
+.ctx-v { color: rgba(245,249,255,.92); font-variant-numeric: tabular-nums; }
+/* 被压缩后的标注：默认不显示，压缩过才出现 */
+.ctx-compact { margin-top: 9px; padding: 6px 9px; border-radius: 8px; font-size: 12.5px;
+  color: rgba(255,225,170,.95); background: rgba(255,190,80,.12);
+  border: 1px solid rgba(255,190,80,.26); }
+.ctx-compact b { font-weight: 600; font-variant-numeric: tabular-nums; }
+body.on-light .ctx-title, body.on-light .ctx-k, body.on-light .ctx-v { color: #16233c; }
+body.on-light .ctx-abs { color: rgba(16,24,40,.55); }
+body.on-light .ctx-bar { background: rgba(0,0,0,.08); }
+body.on-light .ctx-compact { color: #8a5a00; background: rgba(255,190,80,.18);
+  border-color: rgba(180,120,0,.28); }
+.up-row { display: flex; align-items: center; justify-content: space-between; gap: 24px;
+  padding: 8px 10px; border-radius: 8px; font-size: 13px; }
+.up-row:hover { background: rgba(255,255,255,.06); }
+.up-k { color: rgba(233,240,255,.72); }
+.up-v { color: rgba(245,249,255,.96); font-variant-numeric: tabular-nums; }
+body.on-light .usage-panel { background: rgba(255,255,255,.96);
+  border-color: rgba(0,0,0,.10); box-shadow: 0 18px 48px rgba(20,40,80,.18); }
+body.on-light .up-head { color: #16233c; border-bottom-color: rgba(0,0,0,.08); }
+body.on-light .up-row:hover { background: rgba(0,0,0,.05); }
+body.on-light .up-k { color: rgba(16,24,40,.62); }
+body.on-light .up-v { color: #16233c; }
+
+/* ================= 状态：首条消息发出后 ================= */
+/* 0) 欢迎态不显示顶栏（会话还没开始，顶栏是会话内的东西）
+   ⚠ 必须用 body.hide-header 而不是 body:not(.after-first)：
+     后者在真实 app 里永远命中（app 从不设置 after-first 类）→ 顶栏被永久隐藏。
+     这个类由脚本按"是否预览页"决定加不加。 */
+body.hide-header .app-header { display: none; }
+/* 1) 输入框区贴底待命，标题收起 */
+body.after-first .app-main > .stage { align-items: flex-end; padding-bottom: 64px; }
+body.after-first .Hqq-bq_root { display: none; }
+/* 2) 撤掉中间的模式卡 */
+body.after-first #pick-mode { display: none; }
+/* 3) 「选择工作区」下钻不可用并停止交互（其余保持正常） */
+body.after-first .menu .row[data-sub="ws"] { opacity: .45; pointer-events: none; cursor: default; }
+body.after-first .menu .row[data-sub="ws"] .v::after {
+  content: "（不可用）"; margin-left: 6px; font-size: 11.5px; opacity: .9; }
+body.after-first .menu .row[data-sub="ws"] + .submenu { display: none !important; }

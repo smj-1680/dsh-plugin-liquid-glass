@@ -1,0 +1,38 @@
+﻿# 发布到 npm 时要排除的东西（npm 规则：本文件的排除项优先于 package.json 的 files 白名单）。
+#
+# 为什么需要：package.json 的 files 一旦写成整目录（如 "artifacts"），
+# 该目录下的【开发期产物】会被一起发布 —— 实测过一次：
+# 13.7 MB 的包里混进了 5.6 MB 的诊断日志、几份手工备份、5.4 MB 的 UI 抓图。
+# 用户装一个玻璃插件不该下载这些，而且日志里含本机信息。
+#
+# 另一个理由：GitHub 源安装会把【整个仓库】拉下来（没有裁剪机制），
+# 所以仓库本身也要靠"归档目录移出 + 日志不提交"来保持干净。
+
+# ---- 运行期日志（会持续增长，且含本机诊断信息）----
+*.log
+startup-timeline.log
+embed-status.log
+
+# ---- 手工备份（历史实现的存档，不属于发布内容）----
+*.before-prune
+*.before-restore
+*.glass-fixed
+*.bak
+_animation-backup/
+_material-frosted-backup/
+
+# ---- 一次性 UI 抓取 dump（诊断产物，可重新生成）----
+ui-capture-*.json
+layout.jsonl
+
+# ---- 其它开发期杂物 ----
+_archive-*/
+_backup-*/
+docs/
+scripts/
+.DS_Store
+Thumbs.db
+
+# ---- 对外公开版的生成副本（生成物，不进发布包）----
+dist/
+
