@@ -6,28 +6,32 @@
     "   由修改者自行承担，开发者只对未修改的官方版本负责（见 LICENSE）。"
   ],
   "package": "dsh-plugin-liquid-glass",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "license": "MIT",
-  "generatedAt": "2026-10-04T08:40:33.109Z",
-  "fileCount": 26,
-  "totalBytes": 2599289,
-  "overallFingerprint": "ad76a00d5d0aa14e2ec8d5addcde8244140ed4eb5094f71b68158de52eff7b34",
+  "generatedAt": "2026-10-04T12:14:32.819Z",
+  "fileCount": 27,
+  "totalBytes": 2614090,
+  "overallFingerprint": "45632ca21bf220810e001ad594f0bf03b7715111110fe2fc288dcacff301240c",
   "files": {
     "AUTHOR-NOTICE.txt": {
       "sha256": "34aef4549130a8a78806d68df6de12a393fa8c7ca83d8378f38db3045bb8e5e8",
       "bytes": 3210
+    },
+    "CONTRIBUTING.md": {
+      "sha256": "46d734ab2e7cf847177eed201561ad05bae1f723fe529c051801ee96f9e725c7",
+      "bytes": 4008
     },
     "LICENSE": {
       "sha256": "4f9bb10c03694ecba01acd034191d101e269048961c88c22b6f8eb4dd8b0368f",
       "bytes": 2471
     },
     "README.en.md": {
-      "sha256": "4a574b0451f27089b37dedc64495aaeddd5bdf948f445d4aa4498f5b8688af4b",
-      "bytes": 5614
+      "sha256": "62d4c5e8beaf05d10de933c2c60fa3c21c7347313bbccf228e2088c1990fbfc3",
+      "bytes": 7927
     },
     "README.md": {
-      "sha256": "ab247a52f65affa4398575f0635c29d629f54c85ba4c4cc06c7c424231b1475c",
-      "bytes": 11756
+      "sha256": "cf2f3aab4c54e0bf75d1843f2d7dcff1ffa5e6f3a4f213514284bc7765a7416d",
+      "bytes": 11943
     },
     "artifacts/10-glass-composer.css": {
       "sha256": "7e91134aba9c04d15c70d7de2c2a1277432b57a98b7b483a6936914d3b26d85e",
@@ -82,12 +86,12 @@
       "bytes": 518
     },
     "embed/README-ROLLBACK.md": {
-      "sha256": "8178374ab1d23f3bb6824a8e93245de7c2a12866dca174b2f6c2910ea7402d4b",
-      "bytes": 3514
+      "sha256": "c54e6d25c28046ab8b01306fc3dea7a69abd4bd53906565abc29dc684176eb98",
+      "bytes": 1955
     },
     "embed/install.js": {
-      "sha256": "8347070b08668f9c1e253f2da50c517c43707e31ee9bf6de65ebdd837557b049",
-      "bytes": 7310
+      "sha256": "1d48ed1c67b33e557954135599577ace5f52df9225f678d85408dc09e0c4706c",
+      "bytes": 7387
     },
     "embed/ui.css": {
       "sha256": "ecc573ed3a17a5a08537b8b627b87abc93c4c6c491f2f7794bdc23b8bef51e7d",
@@ -102,20 +106,20 @@
       "bytes": 15619
     },
     "lib/client.js": {
-      "sha256": "44579e65263761ce91f331e2c12a1127d16570f83d040c6c8a0f05ae8f23f72d",
-      "bytes": 363649
+      "sha256": "932160638c3fbcb16d0d6bb9712ec691912abd40a4a870fb58f96384f9bdfd77",
+      "bytes": 372830
     },
     "lib/index.js": {
       "sha256": "aa2ec74654fb8d9766ace2fc01e48f6fbbb47485d851085dd363456bc0233bf5",
       "bytes": 38256
     },
     "package.json": {
-      "sha256": "6cc587305e2db5d8577eca4d62aa0aad6edc25ee73b382cf03eed96b9c1da15f",
-      "bytes": 2295
+      "sha256": "620db8de9413bda30d3801958b36b7e8d78fd93124ceb5699bf17ce0b7604ca9",
+      "bytes": 2474
     },
     "release-manifest.json": {
-      "sha256": "5229b860cf9c543011947e99a124780f5754cd508933cfa6a6cfd12afab1278f",
-      "bytes": 1044
+      "sha256": "41b427648e1d63d617337312cf957d704acd216d25423393ce311ae3581ea63e",
+      "bytes": 1459
     }
   }
 }

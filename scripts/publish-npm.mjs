@@ -255,6 +255,36 @@ if (!published) {
     '    · 网络/代理问题')
 }
 
+/* ⚠ 不能只看 npm 的退出码就宣布成功。
+   实测踩到的坑（2026-10-04，发 0.1.5）：npm 打印了
+     `+ dsh-plugin-liquid-glass@0.1.5`
+   脚本也报"已发布"，但 registry 上【根本没有这个版本】（两个小时后仍是 404）。
+   原因是浏览器式 2FA 授权返回的凭据可能只够读、不够写，而 npm 的退出码仍是 0。
+   所以这里必须回 registry 核实【这个版本真的存在】，核实不过就当失败处理 ——
+   否则台账会被写成 published，把一个并不存在的版本永久锁死。 */
+{
+  const u = OFFICIAL.replace(/\/$/, '') + '/' + encodeURIComponent(pkg.name).replace('%40', '@') + '/' + version
+  let exists = false
+  let detail = ''
+  for (let i = 0; i < 6 && !exists; i++) {
+    try {
+      const r = await fetch(u, { headers: { Accept: 'application/json', 'Cache-Control': 'no-cache' } })
+      if (r.ok) { exists = true; break }
+      detail = 'HTTP ' + r.status
+    } catch (e) { detail = String((e && e.message) || e) }
+    if (i < 5) await new Promise((res) => setTimeout(res, 5000))
+  }
+  if (!exists) {
+    fail('npm 报了成功，但 registry 上找不到 ' + pkg.name + '@' + version + '（' + detail + '）。\n\n' +
+      '  也就是说【这次发布没有真的生效】，台账不会被写成 published。\n\n' +
+      '  最常见的原因：浏览器式 2FA 授权拿到的凭据只能读、不能写。\n' +
+      '  请改用验证器 App 的 6 位验证码重试：\n' +
+      '      npm publish --tag ' + tag + ' --registry=' + OFFICIAL + ' --otp=你的6位码\n' +
+      '  然后把这次的结果告诉维护者，台账由人工补齐。')
+  }
+  console.log('\n  registry 已核实：' + pkg.name + '@' + version + ' 确实存在')
+}
+
 console.log('\n✓ 已发布：' + pkg.name + '@' + version + '（dist-tag: ' + tag + '）')
 
 /* ---- 4.5) 登记进对外发布台账 ----

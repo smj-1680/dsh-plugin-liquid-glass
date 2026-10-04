@@ -21,6 +21,14 @@
       "note": "首个公开版（已发布到 npm，latest）",
       "publishedAt": "2026-10-04T09:00:57.657Z",
       "verifiedFingerprint": "44579e65263761ce"
+    },
+    {
+      "version": "0.1.5",
+      "channel": "stable",
+      "status": "published",
+      "note": "首次安装让用户自己选画质（环境检测方案已放弃）；新增图形化安装脚本",
+      "publishedAt": "2026-10-04T11:48:05.446Z",
+      "verifiedFingerprint": "932160638c3fbcb1"
     }
   ]
 }

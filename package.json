@@ -1,7 +1,7 @@
 {
   "_warning": "你已进入源代码更改，请自行承担，开发者不负责人为损毁修复。 一旦改坏，请自行承担，开发者不负责人为损毁修复。确认：node verify-integrity.mjs",
   "name": "dsh-plugin-liquid-glass",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Liquid-glass beautification for DSH desktop: the composer, message bubbles, sidebar, top bar and menus get a liquid-glass material, and it works alongside wallpaper plugins. Dark mode only. · 适用于 DSH 桌面端的液态玻璃美化插件，输入框、消息气泡、侧栏与顶栏等主要界面元素改为液态玻璃材质，可搭配各类壁纸插件使用（需深色模式）。",
   "keywords": [
     "dsh",

@@ -14,7 +14,11 @@ three layers (explicit contract / known hooks / generic structural test), so **a
 wallpaper plugin can be used alongside this one**. You can also opt out of the
 plugin's own background explicitly with `data-dsh-glass-canvas="off"`.
 
-> **Status: v0.1.4 (first public release, published to npm)**
+> **Status: v0.1.5 (published to npm)**
+>
+> - **First install asks for a quality level.** On the first launch after installing
+>   (once the intro finishes) a five-tier picker appears so you choose for your own
+>   machine - picking too high causes stutter. Change it later in Settings -> Liquid Glass.
 >
 > - **DSH desktop only.** In a browser the plugin disables itself entirely (registers
 >   no UI, changes nothing) and shows a one-time notice. This is a deliberate
@@ -30,11 +34,39 @@ plugin's own background explicitly with `data-dsh-glass-canvas="off"`.
 
 ## Install
 
+### Option 1: run the installer script (easiest)
+
+Download **`install-liquid-glass.cmd`** from this repo's Releases page and double-click it.
+It locates DSH's bundled command-line tool on its own, runs the install below, and tells
+you whether it worked.
+
+> **The file in the repository is named `安装插件.cmd` - it is the same file.**
+> GitHub Release asset names do not support Chinese, and uploading it under that name
+> silently degrades to a meaningless `default.cmd`, so the Release asset uses an English
+> name while the source file keeps the Chinese one. Identical content (3515 bytes, same SHA-256).
+
+> **It installs from npm, not directly from this repository.** The sources contain no build
+> output, and installing from a `github:` source via pnpm 10+ triggers the `allowBuilds`
+> approval prompt. Going through npm is more reliable and is automatically mirrored in China.
+> So this route **does not need the plugin marketplace**, but it does still need a network.
+
+### Option 2: command line
+
 ```bash
 dsh plugin --profile desktop add dsh-plugin-liquid-glass
 ```
 
-Then **restart DSH** — the material stylesheets are injected at boot.
+### Option 3: plugin marketplace
+
+Search for "liquid glass". The code is identical to the other routes; the marketplace is
+just another entry point.
+
+---
+
+**Either way, restart DSH afterwards** — the material stylesheets are injected at boot.
+
+**On first launch it asks once for a quality level** (after the intro finishes). Pick one
+that suits your machine - too high causes stutter. Change it later in Settings -> Liquid Glass.
 
 ### Uninstall
 

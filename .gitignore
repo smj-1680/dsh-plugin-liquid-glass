@@ -54,3 +54,11 @@ _set-message.ps1
 _set-sequence.ps1
 _rebase-todo.txt
 _new-subject.txt
+
+# ---- 一次性诊断脚本（临时）----
+_probe-perf.js
+
+# ---- Release 附件用的英文名副本（仓库里保留中文名的源文件）----
+install-liquid-glass.cmd
+
+# ---- Release 附件用的英文名副本（仓库里保留中文名的源文件）----
