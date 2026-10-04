@@ -29,6 +29,14 @@
       "note": "首次安装让用户自己选画质（环境检测方案已放弃）；新增图形化安装脚本",
       "publishedAt": "2026-10-04T11:48:05.446Z",
       "verifiedFingerprint": "932160638c3fbcb1"
+    },
+    {
+      "version": "0.1.6",
+      "channel": "stable",
+      "status": "published",
+      "note": "修复：主题锁定在退出口生效时仍先锁一次（每次开屏弹窗）；浅色说明改为开场动画结束后才弹，不再与动画抢",
+      "publishedAt": "2026-10-04T13:15:18.000Z",
+      "verifiedFingerprint": "ff32bfb68a62b659"
     }
   ]
 }

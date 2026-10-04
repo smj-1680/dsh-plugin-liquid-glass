@@ -6,12 +6,12 @@
     "   由修改者自行承担，开发者只对未修改的官方版本负责（见 LICENSE）。"
   ],
   "package": "dsh-plugin-liquid-glass",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "license": "MIT",
-  "generatedAt": "2026-10-04T12:14:32.819Z",
+  "generatedAt": "2026-10-04T13:15:19.944Z",
   "fileCount": 27,
-  "totalBytes": 2614090,
-  "overallFingerprint": "45632ca21bf220810e001ad594f0bf03b7715111110fe2fc288dcacff301240c",
+  "totalBytes": 2622344,
+  "overallFingerprint": "f98a0dce555ef86b8ae9cdc7d5125ae0552e8e5da788b72b2426e99a7a4584ac",
   "files": {
     "AUTHOR-NOTICE.txt": {
       "sha256": "34aef4549130a8a78806d68df6de12a393fa8c7ca83d8378f38db3045bb8e5e8",
@@ -106,20 +106,20 @@
       "bytes": 15619
     },
     "lib/client.js": {
-      "sha256": "932160638c3fbcb16d0d6bb9712ec691912abd40a4a870fb58f96384f9bdfd77",
-      "bytes": 372830
+      "sha256": "ff32bfb68a62b6592619a39c6976bc28c7fb9d472c997cf5995f1c20d9ca9a5c",
+      "bytes": 380724
     },
     "lib/index.js": {
       "sha256": "aa2ec74654fb8d9766ace2fc01e48f6fbbb47485d851085dd363456bc0233bf5",
       "bytes": 38256
     },
     "package.json": {
-      "sha256": "620db8de9413bda30d3801958b36b7e8d78fd93124ceb5699bf17ce0b7604ca9",
+      "sha256": "906331d1b3fb397bdccef58d48c03404216ca56931aa8d91289a677336b5eb6f",
       "bytes": 2474
     },
     "release-manifest.json": {
-      "sha256": "41b427648e1d63d617337312cf957d704acd216d25423393ce311ae3581ea63e",
-      "bytes": 1459
+      "sha256": "5be62c69d4afe5770e681530546b7b2c09995153be4d8b7ee6d7fe0f6a57ad60",
+      "bytes": 1819
     }
   }
 }
