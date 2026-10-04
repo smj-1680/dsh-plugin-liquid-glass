@@ -60,44 +60,7 @@
 
 ---
 
-## 开发者版 与 对外公开版
-
-这个仓库里同时存在两条线，**它们是分开的**，不要混：
-
-| | 开发者版 | 对外公开版 |
-|---|---|---|
-| **在哪** | 本目录（`glass-plugin/`） | `dist/<版本号>/`（生成物） |
-| **内容** | 全部源文件 + 归档 + 诊断日志 + 抓图 | 严格按发布清单挑出的文件（约 2.4 MB） |
-| **谁能改** | 随手改 | **只有发布流程能产生** |
-| **跑在哪** | 你的 DSH（profile 里是指向本目录的 junction） | 用户的 DSH（从 npm 装） |
-| **版本号** | 随便 | **必须先在 `release-manifest.json` 里登记** |
-
-**为什么必须分开**：本目录同时是 DSH 实际加载的插件（`profiles/desktop` 里是
-`link:` 指向它）。如果发布也从这里"随手发"，那"发出去的到底是哪一份"永远说不清；
-而 npm **不允许覆盖已发布的版本号** —— 发错了收不回。
-
-### 发布流程（公开版只能这样产生）
-
-```powershell
-# 1) 先定版本号：改 package.json 的 version，并在 release-manifest.json 里登记一条
-#    （channel 填 stable 或 snapshot；不登记的话闸门会拦住）
-
-# 2) 过闸门（会检查：版本已登记、未重发、通道对应、白名单不含开发产物）
-node E:\deepseek-V4-flash\dsh-ui-lab\tools\check-release-gates.js
-
-# 3) 生成对外副本并核对（这一步让你"看见"用户会拿到什么）
-node E:\deepseek-V4-flash\dsh-ui-lab\tools\build-public-release.js --clean
-#    产物在 dist/<版本号>/，附 RELEASE-INFO.json（版本、通道、代码指纹）
-
-# 4) 发布（脚本会先自动再跑一次闸门，不通过就中止）
-npm run publish:stable      # 正式版 → npm latest
-npm run publish:snapshot    # 快照版 → npm snapshot（自动生成 -snapshot.<日期>.<随机> 后缀）
-```
-
-发布成功后脚本会自动把该版本标记为 `published` 并记录代码指纹；
-**此后这个版本号永久锁定**，重发会被闸门拦住。
-
-### 两条更新通道
+## 两条更新通道
 
 用户端「设置 → 液态玻璃 → 启用快照版更新」决定查哪条线：
 
@@ -109,7 +72,7 @@ npm run publish:snapshot    # 快照版 → npm snapshot（自动生成 -snapsho
 两条线靠 **dist-tag + 预发布版本号**隔开：快照版带 `-snapshot` 后缀，
 永远小于同号正式版，所以**不会把用户从正式版"顶上"去**。
 
-### 为什么用户安装必须走 npm（而不是 GitHub 源）
+### 为什么装插件必须走 npm（而不是 GitHub 源）
 
 实测（2026-10-04，国内网络）：
 
@@ -120,8 +83,8 @@ npm run publish:snapshot    # 快照版 → npm snapshot（自动生成 -snapsho
 | `registry.npmmirror.com`（npm 镜像） | 200 OK，57 ms |
 
 所以：**GitHub 用来给人看代码，npm 用来给用户下载**（国内自动走镜像加速）。
-`github:` 源还有一个缺点：它拉取**整个仓库**，没有裁剪机制 —— 那约 13 MB 的
-归档与日志会一起下去。npm 侧靠 `files` 白名单 + `.npmignore` 裁到约 2.4 MB。
+`github:` 源还有一个缺点：它拉取**整个仓库**，没有裁剪机制。
+npm 侧靠 `files` 白名单 + `.npmignore` 裁到约 2.5 MB。
 
 ---
 
@@ -287,15 +250,6 @@ dsh-plugin-liquid-glass/
 │   └── client.js                  客户端 DOM 逻辑（SVG 滤镜 / 指针 / 打标）
 └── README.md
 ```
-
-## 卸载
-
-```bash
-dsh plugin --profile web remove dsh-plugin-liquid-glass
-```
-
-桌面端：从 profile 的 `package.json` 里删掉依赖与 bundles 条目，再删
-`node_modules\dsh-plugin-liquid-glass`。
 
 ## 许可
 

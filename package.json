@@ -30,6 +30,7 @@
     "cordis.patch.yml",
     "README.md",
     "README.en.md",
+    "CONTRIBUTING.md",
     "artifacts/bootstrap.js",
     "artifacts/client.js",
     "artifacts/10-glass-composer.css",
