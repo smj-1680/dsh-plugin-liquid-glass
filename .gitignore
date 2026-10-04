@@ -46,3 +46,11 @@ tap-sample-*.txt
 # ---- 从官方安装包提取的参考资料（含 DSH 版权内容，不随仓库分发）----
 OFFICIAL-MENUS.md
 official-menus.json
+
+# ---- 本机专用的小工具（含本机代理端口等环境细节，不随仓库分发）----
+git-github.ps1
+reword-todo.ps1
+_set-message.ps1
+_set-sequence.ps1
+_rebase-todo.txt
+_new-subject.txt
