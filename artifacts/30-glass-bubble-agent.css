@@ -68,8 +68,10 @@
        最需要保持可读性的一个，所以留得比输入框略多一点。 */
     color-mix(in srgb, var(--dsw-alias-bg-layer-2, #22242a) 14%, transparent);
 
-  -webkit-backdrop-filter: blur(26px) saturate(220%) brightness(1.04);
-  backdrop-filter: blur(26px) saturate(220%) brightness(1.04);
+  /* ⚠ 模糊半径走画质档变量（原值 26px 作为兜底）。助手卡片是对话流里
+     面积最大的一类，写死数字会让低/极低档完全省不下这部分成本。 */
+  -webkit-backdrop-filter: blur(var(--dsh-glass-blur, 26px)) saturate(220%) brightness(1.04);
+  backdrop-filter: blur(var(--dsh-glass-blur, 26px)) saturate(220%) brightness(1.04);
 
   border: 0.5px solid rgba(255, 255, 255, 0.20);
 
@@ -93,9 +95,28 @@ body.dsh-glass-over-image .dsh-card-glass-seg {
       rgba(255, 255, 255, 0.00) 64%
     ),
     color-mix(in srgb, var(--dsw-alias-bg-layer-2, #22242a) 50%, transparent);
-  -webkit-backdrop-filter: blur(30px) saturate(200%) brightness(1.02);
-  backdrop-filter: blur(30px) saturate(200%) brightness(1.02);
+  /* ⚠ 同样走画质档变量（原值 30px 兜底）：壁纸场景下最该省成本 */
+  -webkit-backdrop-filter: blur(var(--dsh-glass-blur, 30px)) saturate(200%) brightness(1.02);
+  backdrop-filter: blur(var(--dsh-glass-blur, 30px)) saturate(200%) brightness(1.02);
   border-color: rgba(255, 255, 255, 0.22);
+}
+
+/* ============================================================
+   画质档：低 / 极低 —— 整条关掉磨砂（不是把 blur 设 0）
+   ------------------------------------------------------------
+   ⚠ lib/client.js 原文：blur(0px) 仍会把元素提升为合成层并采样，
+     "开销没有真正消失。要真省，必须整条关掉。"
+
+   助手卡片是对话流里面积最大的一类，原先写死 blur(26px/30px)，
+   选了"关磨砂"的用户在这里完全没省下来。
+   底色由上方两条规则自带的 background 承担。
+   与 50-glass-surfaces.css 的同名低档块保持同一模式。 */
+html[data-dsh-glass-perf="low"] #dsh-card-glass,
+html[data-dsh-glass-perf="low"] .dsh-card-glass-seg,
+html[data-dsh-glass-perf="min"] #dsh-card-glass,
+html[data-dsh-glass-perf="min"] .dsh-card-glass-seg {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
 }
 
 /* ---------- 无障碍降级 ---------- */

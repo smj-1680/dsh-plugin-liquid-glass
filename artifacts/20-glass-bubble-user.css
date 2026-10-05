@@ -50,8 +50,10 @@
     ),
     color-mix(in srgb, var(--dsw-alias-bg-layer-3, #2a2d35) 16%, transparent) !important;
 
-  -webkit-backdrop-filter: blur(24px) saturate(230%) brightness(1.05);
-  backdrop-filter: blur(24px) saturate(230%) brightness(1.05);
+  /* ⚠ 模糊半径走画质档变量（原值 24px 作为兜底）。
+     写死数字会让低/极低档承诺的"关磨砂"落空 —— 而气泡是对话流里数量最多的一类。 */
+  -webkit-backdrop-filter: blur(var(--dsh-glass-blur, 24px)) saturate(230%) brightness(1.05);
+  backdrop-filter: blur(var(--dsh-glass-blur, 24px)) saturate(230%) brightness(1.05);
 
   /* 透镜边缘：只加描边，绝不碰 border-radius（会覆盖组件圆角） */
   border: 0.5px solid rgba(255, 255, 255, 0.24) !important;
@@ -107,7 +109,24 @@ body.dsh-glass-over-image [data-dsh-glass="bubble-user"] {
       rgba(255, 255, 255, 0.00) 62%
     ),
     color-mix(in srgb, var(--dsw-alias-bg-layer-3, #2a2d35) 46%, transparent) !important;
-  -webkit-backdrop-filter: blur(28px) saturate(210%) brightness(1.03);
-  backdrop-filter: blur(28px) saturate(210%) brightness(1.03);
+  /* ⚠ 同样走画质档变量（原值 28px 兜底）：壁纸场景是低档用户最需要省成本的地方 */
+  -webkit-backdrop-filter: blur(var(--dsh-glass-blur, 28px)) saturate(210%) brightness(1.03);
+  backdrop-filter: blur(var(--dsh-glass-blur, 28px)) saturate(210%) brightness(1.03);
   border-color: rgba(255, 255, 255, 0.30) !important;
+}
+
+/* ============================================================
+   画质档：低 / 极低 —— 整条关掉磨砂（不是把 blur 设 0）
+   ------------------------------------------------------------
+   ⚠ lib/client.js 原文：blur(0px) 仍会把元素提升为合成层并采样，
+     "开销没有真正消失。要真省，必须整条关掉。"
+
+   气泡是对话流里数量最多的一类，原先写死 blur(24px/28px)，
+   选了"极低 / 低（关磨砂）"的用户在这里一点都没省下来。
+   底色由上方两条规则自带的 background 承担。
+   与 50-glass-surfaces.css 的同名低档块保持同一模式。 */
+html[data-dsh-glass-perf="low"] [data-dsh-glass="bubble-user"],
+html[data-dsh-glass-perf="min"] [data-dsh-glass="bubble-user"] {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
 }

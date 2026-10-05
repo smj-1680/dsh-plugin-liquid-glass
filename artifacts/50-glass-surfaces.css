@@ -609,6 +609,45 @@ body.dsh-glass-ui > * {
   background-color: transparent !important;
 }
 
+/* ---------- settings dialog: the panel IS the material ----------
+   The settings box (`.wCInkW_panel`, role=dialog aria-modal=true, 800x632, radius 28px)
+   shipped as a flat `rgb(44,44,46)` slab. Unlike menus it has NO `_material` child, so the
+   rule above never reaches it - the material has to go on the panel itself.
+
+   Why it is safe here, all measured on the live app 2026-10-05:
+     · its overlay parent is fully transparent (rgba(0,0,0,0)), so nothing darkens the glass;
+     · the panel holds NO scroll container, so the backdrop is not clipped along a line that
+       moves with scrolling (that is the bug that hit the workspace session list);
+     · the only opaque thing inside is the selected nav cell (rgb(67,69,74)) - a selection
+       highlight, deliberately left opaque so it still reads as "current page";
+     · white body text on the result measures 16.96:1 (WCAG needs 4.5:1), higher than the
+       12.54:1 it had on the flat slab, so readability improves rather than regresses.
+   The 28px radius is the app's own and is kept. */
+[data-dsh-glass-popup][role="dialog"] {
+  background:
+    linear-gradient(
+      158deg,
+      rgba(255, 255, 255, calc(var(--dsh-glass-sheen) * 0.42)) 0%,
+      rgba(255, 255, 255, calc(var(--dsh-glass-sheen) * 0.12)) 38%,
+      rgba(255, 255, 255, 0) 66%
+    ),
+    color-mix(in srgb, var(--dsh-glass-tint) calc(var(--dsh-glass-alpha) * 100%), transparent) !important;
+  -webkit-backdrop-filter: blur(var(--dsh-glass-blur)) saturate(var(--dsh-glass-saturate)) brightness(var(--dsh-glass-brightness));
+  backdrop-filter: blur(var(--dsh-glass-blur)) saturate(var(--dsh-glass-saturate)) brightness(var(--dsh-glass-brightness));
+  border: 0.5px solid rgba(255, 255, 255, var(--dsh-glass-border)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, calc(var(--dsh-glass-sheen) * 1.1)),
+    0 24px 60px -24px rgba(0, 0, 0, 0.65) !important;
+}
+
+/* A dialog is a big surface; a low tier that zeroes the blur (perf="low") must not leave it
+   as a washed-out tint. Keep it opaque-ish instead of near-transparent when blur is off. */
+html[data-dsh-glass-perf="low"] [data-dsh-glass-popup][role="dialog"] {
+  background: color-mix(in srgb, var(--dsh-glass-tint) 88%, transparent) !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
 /* ---------- right sidebar: one glass pane ----------
    It is a navigation surface, like the left sidebar, and was painting fully
    opaque over the wallpaper. Same shape of treatment as the workspace block: the
@@ -647,8 +686,11 @@ body.dsh-glass-ui > * {
     ),
     color-mix(in srgb, var(--dsh-glass-tint) 26%, transparent) !important;
 
-  -webkit-backdrop-filter: blur(12px) saturate(1.25) brightness(1.015);
-  backdrop-filter: blur(12px) saturate(1.25) brightness(1.015);
+  /* ⚠ 与其余材质保持一致：模糊半径走画质档变量，原值 12px 作为兜底。
+     低档下本规则会被 html[data-dsh-glass-perf="low"] 的 backdrop-filter:none 覆盖，
+     但中/高档位原先是调不动这个 12px 的。 */
+  -webkit-backdrop-filter: blur(var(--dsh-glass-blur, 12px)) saturate(1.25) brightness(1.015);
+  backdrop-filter: blur(var(--dsh-glass-blur, 12px)) saturate(1.25) brightness(1.015);
 
   border: 0.5px solid rgba(255, 255, 255, 0.055) !important;
   border-radius: 16px !important;

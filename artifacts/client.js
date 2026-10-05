@@ -1159,6 +1159,19 @@
     } catch (e) { return false; }
   }
 
+  /* Is this element a real scroll container (not just `overflow:auto` with nothing to scroll)?
+     Used to keep the glass material OFF scrolling boxes: a backdrop filter on a scroller does not
+     re-sample reliably while it scrolls under Chromium, so the blur cuts off along a line that
+     MOVES with the scroll position. Measured 2026-10-05 on the sidebar session list. */
+  function isScrollableEl(node) {
+    try {
+      var c = getComputedStyle(node);
+      var sy = c.overflowY;
+      if (sy !== 'auto' && sy !== 'scroll') return false;
+      return node.scrollHeight > node.clientHeight + 2;
+    } catch (e) { return false; }
+  }
+
   function tickGlassIn(seat) {
     try {
       var kids = seat.querySelectorAll('*');
@@ -1710,7 +1723,7 @@
         if (firstRow && rowCount >= 1) {
           var node = firstRow;
           var hops = 0;
-          while (node && hops < 8) {
+          while (node && hops < 10) {
             var holdsAll = true;
             var seen = 0;
             for (var w = 0; w < rows.length; w++) {
@@ -1722,6 +1735,19 @@
               var nb = node.getBoundingClientRect();
               // a sane panel: as wide as the sidebar column family, not the page
               if (nb.width > 120 && nb.width < 420 && nb.height > 0) {
+                /* ⚠ 不能把材质放在【可滚动】的容器上。
+                   实测（2026-10-05，用户反馈"滚动时玻璃断层、断层位置还会跟着变"）：
+                   这里的 DOM 是 _9lTDKa_list(overflow:auto, scrollH 796 > clientH 463)
+                   套在 _9lTDKa_treeBody(visible) 里面，而原来的循环【第一个】满足
+                   尺寸条件的祖先就是那个滚动元素，于是 backdrop-filter 加在了它身上。
+                   Chromium 下滚动容器上的 backdrop 采样不随滚动稳定更新 ——
+                   模糊会在某条水平线上截断，而那条线随 scrollTop 移动，就是用户看到的断层。
+                   所以跳过可滚动元素，继续往上找一层非滚动的祖先。 */
+                if (isScrollableEl(node)) {
+                  node = node.parentElement;
+                  hops++;
+                  continue;
+                }
                 node.setAttribute('data-dsh-glass-block', '1');
                 keep.push(node);
                 break;
@@ -1976,8 +2002,16 @@
       } catch (e) { }
 
       /* Popups: mark the host so the stylesheet can leave exactly one glass
-         layer instead of stacking a blur on every row. */
-      var popups = document.querySelectorAll('[role="menu"],[role="listbox"],[data-radix-popper-content-wrapper]');
+         layer instead of stacking a blur on every row.
+         `[role="dialog"]` was added for the SETTINGS panel (2026-10-05): it is a
+         `role="dialog" aria-modal="true"` box that shipped opaque (bg rgb(44,44,46))
+         and got no glass at all, because it is none of the three kinds below.
+         Measured on the live app: it is the ONLY role=dialog on the page, it has no
+         `_material` child (so `[data-dsh-glass-popup] [class*="_material"]` never
+         fires for it — the stylesheet paints the panel itself instead) and it holds
+         no scroll container (so its backdrop filter cannot be clipped like the
+         workspace list was). */
+      var popups = document.querySelectorAll('[role="menu"],[role="listbox"],[data-radix-popper-content-wrapper],[role="dialog"]');
       for (var p = 0; p < popups.length; p++) {
         var pe = popups[p];
         if (!isVisibleBox(pe)) continue;

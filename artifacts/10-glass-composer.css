@@ -106,9 +106,12 @@ body.dsh-glass-foreign-backdrop #dsh-glass-glow {
   /* 材质：几乎不留白雾，让背后的东西透上来 */
   background: color-mix(in srgb, var(--dsw-alias-bg-layer-2, #22242a) 13%, transparent) !important;
 
-  /* 折射：模糊 + 大幅提饱和，把背后的颜色"挤"出来 */
-  -webkit-backdrop-filter: blur(32px) saturate(240%) brightness(1.06) contrast(1.04);
-  backdrop-filter: blur(32px) saturate(240%) brightness(1.06) contrast(1.04);
+  /* 折射：模糊 + 大幅提饱和，把背后的颜色"挤"出来
+     ⚠ 模糊半径必须走 --dsh-glass-blur（画质档变量），不能写死数字。
+       写死会让中/高/极高档调不动它、低/极低档承诺的"关磨砂"也落空。
+       32px 作为兜底值保留：变量未定义时行为与改前完全一致。 */
+  -webkit-backdrop-filter: blur(var(--dsh-glass-blur, 32px)) saturate(240%) brightness(1.06) contrast(1.04);
+  backdrop-filter: blur(var(--dsh-glass-blur, 32px)) saturate(240%) brightness(1.06) contrast(1.04);
 
   /* 透镜边缘：去掉白雾后，边缘要更明确一些，否则整块会显得没有形体 */
   border: 0.5px solid rgba(255, 255, 255, 0.28) !important;
@@ -152,8 +155,12 @@ body.dsh-glass-foreign-backdrop #dsh-glass-glow {
   z-index: -1;
   border-radius: inherit;
   pointer-events: none;
-  backdrop-filter: url(#dsh-liquid-refraction) blur(6px) saturate(150%);
-  -webkit-backdrop-filter: url(#dsh-liquid-refraction) blur(6px) saturate(150%);
+  /* ⚠ 这条同样必须走画质档变量：低/极低档下 blur 归零，折射层才不会
+     在弱机上继续做一次位移采样（那正是低档要省的成本）。
+     底色由父层 [data-dsh-glass="composer"] 承担 —— 本层 z-index:-1 垫在它后面，
+     自身是透明装饰层，契约 1 的"底色兜底"由父规则满足。 */
+  backdrop-filter: url(#dsh-liquid-refraction) blur(var(--dsh-glass-blur, 6px)) saturate(150%);
+  -webkit-backdrop-filter: url(#dsh-liquid-refraction) blur(var(--dsh-glass-blur, 6px)) saturate(150%);
   opacity: 0.9;
 }
 
@@ -271,8 +278,34 @@ body.dsh-glass-foreign-backdrop #dsh-glass-glow {
    ============================================================ */
 body.dsh-glass-over-image [data-dsh-glass="composer"] {
   background: color-mix(in srgb, var(--dsw-alias-bg-layer-2, #22242a) 42%, transparent) !important;
-  -webkit-backdrop-filter: blur(34px) saturate(220%) brightness(1.04) contrast(1.04);
-  backdrop-filter: blur(34px) saturate(220%) brightness(1.04) contrast(1.04);
+  /* ⚠ 这里原来是写死的 34px，会让"壁纸场景"下的输入框无视画质档 ——
+     而壁纸场景恰恰是低档用户最需要省成本的地方（每帧都要重采样一整幅画面）。
+     34px 保留为兜底值，插件的视觉决策不变。 */
+  -webkit-backdrop-filter: blur(var(--dsh-glass-blur, 34px)) saturate(220%) brightness(1.04) contrast(1.04);
+  backdrop-filter: blur(var(--dsh-glass-blur, 34px)) saturate(220%) brightness(1.04) contrast(1.04);
+}
+
+/* ============================================================
+   画质档：低 / 极低 —— 整条关掉磨砂（不是把 blur 设 0）
+   ------------------------------------------------------------
+   ⚠ lib/client.js 里已写明原因（原文）：
+     "为什么'低'档要写 backdrop-filter:none 而不是把 --dsh-glass-blur 设 0：
+      blur(0px) 仍会把元素提升为合成层并采样，开销没有真正消失。要真省，必须整条关掉。"
+
+   背景：档位来自首次安装的画质选择器，用户看到的说明是
+     · 极低 = "核显 / 远程桌面 / 虚拟机：关磨砂、关装饰、关开场动画"
+     · 低   = "核显：关磨砂，保留渐变与点阵"
+   而本文件原先写死 blur(32px/34px/6px)，既不响应 --dsh-glass-blur，
+   也没有低档覆盖 —— 于是选了"关磨砂"的用户，输入框仍在全量采样。
+
+   底色由上方各规则自带的 background 承担，关掉磨砂不会变透明色块。
+   与 50-glass-surfaces.css 里同名的低档块是同一模式，保持两份一致。 */
+html[data-dsh-glass-perf="low"] [data-dsh-glass="composer"],
+html[data-dsh-glass-perf="low"] [data-dsh-glass="composer"]::before,
+html[data-dsh-glass-perf="min"] [data-dsh-glass="composer"],
+html[data-dsh-glass-perf="min"] [data-dsh-glass="composer"]::before {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
 }
 
 @media (hover: hover) {

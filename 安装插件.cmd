@@ -66,12 +66,22 @@ REM ---------------------------------------------------------------
 REM  Install.
 REM  The package is prebuilt, so no build approval is needed.
 REM  `dsh plugin` forwards straight to pnpm.
+REM
+REM  *** WHY --config.minimumReleaseAge=0 IS REQUIRED ***
+REM  pnpm 11 refuses packages published very recently (a supply-chain
+REM  guard called minimumReleaseAge). When several versions of this
+REM  plugin are all "too new", pnpm silently picks the OLDEST version
+REM  that is old enough. Measured 2026-10-04: a plain
+REM  `add dsh-plugin-liquid-glass` installed 0.1.4 while 0.1.6 was
+REM  already latest - so users got a build missing every recent fix,
+REM  with no error shown. Setting the age to 0 installs whatever
+REM  `@latest` points at.
 REM ---------------------------------------------------------------
 echo.
 echo  [2/3] installing (needs internet, about 3-10 seconds)...
 echo.
 
-call "!DSH!" plugin --profile desktop add dsh-plugin-liquid-glass
+call "!DSH!" plugin --profile desktop add dsh-plugin-liquid-glass@latest --config.minimumReleaseAge=0
 set "RC=!errorlevel!"
 
 echo.
@@ -80,11 +90,25 @@ if not "!RC!"=="0" (
   echo   Install FAILED  ^(exit code !RC!^)
   echo  ----------------------------------------------------------
   echo.
-  echo   Common causes:
-  echo     - no internet, or the npm registry is unreachable
-  echo     - DSH is still running and has the profile folder locked
-  echo       ^(close DSH completely and run this again^)
-  echo     - the desktop profile is managed by the app and is read-only
+  echo   If the message above mentions:
+  echo.
+  echo    ERR_PNPM_UNEXPECTED_STORE  ^(Unexpected store location^)
+  echo       Your DSH profile was built with a different pnpm version than
+  echo       the one inside DSH. Fix it once with:
+  echo         cd /d "%%USERPROFILE%%\.dsh\profiles\desktop"
+  echo         pnpm install
+  echo       Close DSH first, and back up that folder before doing it.
+  echo.
+  echo    ERR_PNPM_NO_MATCHING_VERSION
+  echo       The version was not found on the registry. Check your network.
+  echo.
+  echo    ENOTFOUND / ETIMEDOUT / ECONNRESET
+  echo       Network problem. In China the npm mirror is normally already
+  echo       configured, so this usually means the connection itself is down.
+  echo.
+  echo    EBUSY / EPERM / EACCES
+  echo       DSH is still running and holds the profile folder.
+  echo       Close DSH COMPLETELY and run this again.
   echo.
   echo   You can also install it from inside DSH:
   echo     marketplace -^> search "liquid glass" -^> install

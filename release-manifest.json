@@ -37,6 +37,14 @@
       "note": "修复：主题锁定在退出口生效时仍先锁一次（每次开屏弹窗）；浅色说明改为开场动画结束后才弹，不再与动画抢",
       "publishedAt": "2026-10-04T13:15:18.000Z",
       "verifiedFingerprint": "ff32bfb68a62b659"
+    },
+    {
+      "version": "0.1.62",
+      "channel": "stable",
+      "status": "published",
+      "note": "设置界面液态玻璃（含 [role=dialog] 与低画质兜底）；修复画质档只对 1/4 样式表生效——输入框/用户气泡/助手卡片原先写死 blur，导致低/极低档承诺的关磨砂落空，现改为读 --dsh-glass-blur 并补齐 low/min 的 backdrop-filter:none",
+      "publishedAt": "2026-10-05T08:29:29.849Z",
+      "verifiedFingerprint": "ff32bfb68a62b659"
     }
   ]
 }
