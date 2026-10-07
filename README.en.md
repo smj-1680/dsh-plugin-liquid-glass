@@ -5,16 +5,26 @@ bubbles, sidebar, top bar and menus a liquid-glass material. Works alongside wal
 plugins. Dark mode only.
 
 **What it actually covers** (the marketplace checks the description against the code,
-so this is the exact scope): the composer (true refraction), user message bubbles,
+so this is the exact scope): the composer, user message bubbles,
 the assistant card, sidebar workspace blocks, the top bar and its tabs, right-sidebar
 panels, sidebar control pills, and menu/popup material.
+The material is translucent glass: a tint fill, a background blur, inner highlights,
+a hairline border and a drop shadow.
+
+> **Wording note:** this line used to say "the composer (true refraction)". The current
+> release (0.1.62) uses a **background blur** (`backdrop-filter: blur`), with **no
+> displacement refraction** — `git show HEAD:artifacts/client.js` contains zero
+> occurrences of `dsh-lens`. The refraction version (an SVG `feDisplacementMap` lens)
+> is still in local development and has not been committed. The marketplace checks the
+> description against the code, so "refraction" is deliberately not claimed here; it
+> will be restored once it actually ships.
 
 **Wallpaper plugins:** presence is detected by *capability*, not by vendor, across
 three layers (explicit contract / known hooks / generic structural test), so **any
 wallpaper plugin can be used alongside this one**. You can also opt out of the
 plugin's own background explicitly with `data-dsh-glass-canvas="off"`.
 
-> **Status: v0.1.5 (published to npm)**
+> **Status: v0.1.62 (published to npm)**
 >
 > - **First install asks for a quality level.** On the first launch after installing
 >   (once the intro finishes) a five-tier picker appears so you choose for your own
@@ -23,7 +33,7 @@ plugin's own background explicitly with `data-dsh-glass-canvas="off"`.
 > - **DSH desktop only.** In a browser the plugin disables itself entirely (registers
 >   no UI, changes nothing) and shows a one-time notice. This is a deliberate
 >   limitation, not an untested path.
-> - **Light mode is not supported yet.** The v0.1.4 materials are tuned for dark
+> - **Light mode is not supported yet.** The materials are tuned for dark
 >   backgrounds only, so the appearance is locked to dark. Picking "Light" or
 >   "Follow system" is intercepted and explained.
 >   To unlock anyway, create an empty file `glass-theme-lock-off` in `~/.dsh/`.
@@ -83,13 +93,22 @@ restores the stock appearance.
 
 | Surface | Effect | Layer |
 |---|---|---|
-| Composer (input box) | **True refraction** — SVG displacement map + blur + pointer highlight | Navigation |
+| Composer (input box) | Translucent glass — background blur + pointer-following highlight | Navigation |
 | User message bubble | Glass look — self-lit gradient, hairline edge, inner highlight | Content |
 | Assistant card | Glass look + 900px narrowing + smooth growth | Content |
 
+> ⚠ **Factual correction:** this table used to read
+> "**True refraction** — SVG displacement map + blur + pointer highlight" for the
+> composer. In release 0.1.62 the composer's material is a background blur only
+> (`backdrop-filter: blur(var(--dsh-glass-blur, 32px)) saturate(...) brightness(...)`);
+> there is no SVG displacement map in the shipped code. The refraction version is
+> still in local development. The paragraph below describes the *design intent* that
+> the refraction work is meant to serve — it is kept for context, not as a claim
+> about the current release.
+
 On the navigation / content distinction: Apple stated at WWDC25 that glass belongs
 to the **navigation layer**. The composer floats above scrolling content, so there
-is something continuous behind it to refract — it gets true refraction. Message
+is something continuous behind it that a refraction pass *could* sample. Message
 content sits on a flat transcript, so refracting it would distort the text and hurt
 readability — those get the glass *look* only. The distinction is a requirement,
 not a preference.
