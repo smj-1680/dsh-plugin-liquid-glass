@@ -6,12 +6,12 @@
     "   由修改者自行承担，开发者只对未修改的官方版本负责（见 LICENSE）。"
   ],
   "package": "dsh-plugin-liquid-glass",
-  "version": "0.1.6",
+  "version": "0.1.63",
   "license": "MIT",
-  "generatedAt": "2026-10-04T13:15:19.944Z",
-  "fileCount": 27,
-  "totalBytes": 2622344,
-  "overallFingerprint": "f98a0dce555ef86b8ae9cdc7d5125ae0552e8e5da788b72b2426e99a7a4584ac",
+  "generatedAt": "2026-10-11T05:36:47.930Z",
+  "fileCount": 28,
+  "totalBytes": 2684369,
+  "overallFingerprint": "6792ed8aa3181bdf678e60f666c434e6ad2ee86d5bf7f33e79905edb6c1170c1",
   "files": {
     "AUTHOR-NOTICE.txt": {
       "sha256": "34aef4549130a8a78806d68df6de12a393fa8c7ca83d8378f38db3045bb8e5e8",
@@ -26,40 +26,40 @@
       "bytes": 2471
     },
     "README.en.md": {
-      "sha256": "62d4c5e8beaf05d10de933c2c60fa3c21c7347313bbccf228e2088c1990fbfc3",
-      "bytes": 7927
+      "sha256": "dd4a620dc38780ba1be7fd33484a6fae77726b175fa665af59925e399cabeeeb",
+      "bytes": 9161
     },
     "README.md": {
-      "sha256": "cf2f3aab4c54e0bf75d1843f2d7dcff1ffa5e6f3a4f213514284bc7765a7416d",
-      "bytes": 11943
+      "sha256": "998587fbb847577ddbf1939ef1050644146a415e83aa1729a0498859ac83af04",
+      "bytes": 12906
     },
     "artifacts/10-glass-composer.css": {
-      "sha256": "7e91134aba9c04d15c70d7de2c2a1277432b57a98b7b483a6936914d3b26d85e",
-      "bytes": 13544
+      "sha256": "0d71d8ad5e9142cc9e3f7d2368027ef633a204c0c84383c7d18ae16f6610ed49",
+      "bytes": 17847
     },
     "artifacts/20-glass-bubble-user.css": {
-      "sha256": "ed11966d8cedc389480f3ca274bba483a613db0573aaeb3461a396e1c1b53ee8",
-      "bytes": 4658
+      "sha256": "8ecdbc68e9e18c70c09295925f38fa32117cf26eaf541b3b6df29ec5986ce98d",
+      "bytes": 6104
     },
     "artifacts/30-glass-bubble-agent.css": {
-      "sha256": "b70d25e3912c7fd1912dd0860118056d02f5dc90073c90391c7a11e446be27ac",
-      "bytes": 4637
+      "sha256": "0230718f9b1b6dbc3f2aa226d6d30e44dbb654fb88800307e48804f3db7783c3",
+      "bytes": 6033
     },
     "artifacts/40-ready-gate.css": {
       "sha256": "5bffc4d807bc59f806323ee47b2248010ccc77ea2f38183941050c15c1e650b4",
       "bytes": 697
     },
     "artifacts/50-glass-surfaces.css": {
-      "sha256": "2ffb6b3b07f1518a2a08d4d43551e55fef55e48c4bb15d94fa9b69b0fe406939",
-      "bytes": 37596
+      "sha256": "77351f7f872575d34681b07c1acf97e710036ecd17f53bf3017274cc64a23de3",
+      "bytes": 43752
     },
     "artifacts/bootstrap.js": {
       "sha256": "3bd40650f0e2a60b06469c42d422c6afcced0bd4c87f4a44320e10e2b8786323",
       "bytes": 37987
     },
     "artifacts/client.js": {
-      "sha256": "bce9a3832bde946858abeed61d159b21d2487f353f46581b44be99dcc7c79d7e",
-      "bytes": 146868
+      "sha256": "ca9e9fdc3f58c1817a83f274f595cb296d4878ec054d3ac122fae7a8cdbeffb2",
+      "bytes": 168557
     },
     "artifacts/deepseek-cyberpunk-intro.mp4": {
       "sha256": "beabf5956e0b467e9f06f467b3f5b7a682abb6555c1b16aee1c27f7e5b334a58",
@@ -68,6 +68,10 @@
     "cordis.patch.yml": {
       "sha256": "aa591b59c16a5f540b05ea6c9f72e183feec47ce70abc049a89051e320b135c6",
       "bytes": 1287
+    },
+    "docs/HANDOFF-MAINTENANCE.md": {
+      "sha256": "0ca4c810473251f22fa12a64e1a385e6aae030cc858bceb5ebab74585f71c9fa",
+      "bytes": 20127
     },
     "docs/composer-entrance.md": {
       "sha256": "9e035d98ad3c8af4912d906a3e6c5b68067fdf7cbb1d0ba9eab441368af7bbeb",
@@ -106,20 +110,20 @@
       "bytes": 15619
     },
     "lib/client.js": {
-      "sha256": "ff32bfb68a62b6592619a39c6976bc28c7fb9d472c997cf5995f1c20d9ca9a5c",
-      "bytes": 380724
+      "sha256": "daadfc742dd47efe16e9f866314d6fabdfaf7271d85c650b322f60ad25760b2c",
+      "bytes": 384182
     },
     "lib/index.js": {
       "sha256": "aa2ec74654fb8d9766ace2fc01e48f6fbbb47485d851085dd363456bc0233bf5",
       "bytes": 38256
     },
     "package.json": {
-      "sha256": "906331d1b3fb397bdccef58d48c03404216ca56931aa8d91289a677336b5eb6f",
-      "bytes": 2474
+      "sha256": "a42bd7e97d7c9c8c5275e74b0c411ea64fe5034dd50ab4503947685c0c0a0533",
+      "bytes": 2510
     },
     "release-manifest.json": {
-      "sha256": "5be62c69d4afe5770e681530546b7b2c09995153be4d8b7ee6d7fe0f6a57ad60",
-      "bytes": 1819
+      "sha256": "bc6418e8b77bca4fe1b05a8ad4c8a33dda436eddd8ed21a24ab17889f964fd90",
+      "bytes": 3036
     }
   }
 }
