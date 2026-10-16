@@ -23,6 +23,7 @@ if defined DSH echo  [1/3] found dsh on PATH: !DSH!
 
 if not defined DSH (
   for %%D in (
+    "F:\Deepseek"
     "E:\Deepseek"
     "C:\Program Files\DeepSeek Harness"
     "C:\Program Files (x86)\DeepSeek Harness"
@@ -44,6 +45,7 @@ if not defined DSH (
   echo  ----------------------------------------------------------
   echo.
   echo   I looked on PATH and in these folders:
+  echo     F:\Deepseek
   echo     E:\Deepseek
   echo     C:\Program Files\DeepSeek Harness
   echo     %%LOCALAPPDATA%%\Programs\DeepSeek Harness
