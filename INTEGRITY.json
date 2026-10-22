@@ -8,10 +8,10 @@
   "package": "dsh-plugin-liquid-glass",
   "version": "0.1.63",
   "license": "MIT",
-  "generatedAt": "2026-10-11T05:36:47.930Z",
+  "generatedAt": "2026-10-22T11:32:54.689Z",
   "fileCount": 28,
-  "totalBytes": 2684369,
-  "overallFingerprint": "6792ed8aa3181bdf678e60f666c434e6ad2ee86d5bf7f33e79905edb6c1170c1",
+  "totalBytes": 2660471,
+  "overallFingerprint": "eca0ce57378048f131f0b725d76f646bc594dbeec03fba43c0fccd261f8d5bae",
   "files": {
     "AUTHOR-NOTICE.txt": {
       "sha256": "34aef4549130a8a78806d68df6de12a393fa8c7ca83d8378f38db3045bb8e5e8",
@@ -34,32 +34,32 @@
       "bytes": 12906
     },
     "artifacts/10-glass-composer.css": {
-      "sha256": "0d71d8ad5e9142cc9e3f7d2368027ef633a204c0c84383c7d18ae16f6610ed49",
-      "bytes": 17847
+      "sha256": "b97ae12945876e47df1820814cf8a705b5f19e5fcc88ade6e35518ddd5d04bd4",
+      "bytes": 16028
     },
     "artifacts/20-glass-bubble-user.css": {
-      "sha256": "8ecdbc68e9e18c70c09295925f38fa32117cf26eaf541b3b6df29ec5986ce98d",
-      "bytes": 6104
+      "sha256": "ab482bcc8ba0cf753486646f0fe7fd280bfd83f4f898769b42fb66f0a7c0b30f",
+      "bytes": 5932
     },
     "artifacts/30-glass-bubble-agent.css": {
-      "sha256": "0230718f9b1b6dbc3f2aa226d6d30e44dbb654fb88800307e48804f3db7783c3",
-      "bytes": 6033
+      "sha256": "6ee166e62c480b3a40337f0ce76fc4e1eb1e1fb4ed09192bf016788cca1d9ea6",
+      "bytes": 5950
     },
     "artifacts/40-ready-gate.css": {
       "sha256": "5bffc4d807bc59f806323ee47b2248010ccc77ea2f38183941050c15c1e650b4",
       "bytes": 697
     },
     "artifacts/50-glass-surfaces.css": {
-      "sha256": "77351f7f872575d34681b07c1acf97e710036ecd17f53bf3017274cc64a23de3",
-      "bytes": 43752
+      "sha256": "8f3bd0a8406e1c313e8d460821e953b1f599eb05b2d5a65101f62c93da0affd1",
+      "bytes": 40244
     },
     "artifacts/bootstrap.js": {
       "sha256": "3bd40650f0e2a60b06469c42d422c6afcced0bd4c87f4a44320e10e2b8786323",
       "bytes": 37987
     },
     "artifacts/client.js": {
-      "sha256": "ca9e9fdc3f58c1817a83f274f595cb296d4878ec054d3ac122fae7a8cdbeffb2",
-      "bytes": 168557
+      "sha256": "dede8c62a6d9b034505cad9e45b98491581349d301282c722ccdbb07e57e2ac1",
+      "bytes": 149110
     },
     "artifacts/deepseek-cyberpunk-intro.mp4": {
       "sha256": "beabf5956e0b467e9f06f467b3f5b7a682abb6555c1b16aee1c27f7e5b334a58",
@@ -70,8 +70,8 @@
       "bytes": 1287
     },
     "docs/HANDOFF-MAINTENANCE.md": {
-      "sha256": "0ca4c810473251f22fa12a64e1a385e6aae030cc858bceb5ebab74585f71c9fa",
-      "bytes": 20127
+      "sha256": "ad13743dfa53e3e8b5f24999b7eb12f56e68fe4d3527d12603dd8792b0d6e1b4",
+      "bytes": 21089
     },
     "docs/composer-entrance.md": {
       "sha256": "9e035d98ad3c8af4912d906a3e6c5b68067fdf7cbb1d0ba9eab441368af7bbeb",
@@ -122,8 +122,8 @@
       "bytes": 2510
     },
     "release-manifest.json": {
-      "sha256": "bc6418e8b77bca4fe1b05a8ad4c8a33dda436eddd8ed21a24ab17889f964fd90",
-      "bytes": 3036
+      "sha256": "1f49a8b580043b8baad198f4a543bca6f6561cae5734a1ab3b1b5a936acc6fa0",
+      "bytes": 3205
     }
   }
 }

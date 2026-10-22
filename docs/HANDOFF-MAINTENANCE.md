@@ -9,12 +9,15 @@
 
 ## 0. 一句话现状
 
-**插件已三线发布（npm 正式版 / npmmirror 镜像 / GitHub Release），线上最新 `0.1.6`，
-而开发目录已经领先 0.1.6**：多了「设置界面液态玻璃」与一个**未解决**的工作区改动（见 §4）。
+**插件已三线发布（npm 正式版 / npmmirror 镜像 / GitHub Release），线上最新 `0.1.62`
+（npm 通道），GitHub 上已有 `v0.1.63` 的 tag 与 Release**；
+`0.1.63` 因 npm 账号的 2FA 故障暂未发到 npm，其余内容均已就绪。
 
-- 回归：`node dsh-ui-lab/tools/check-all.js` → **29/30**（唯一失败是发布闸门，因为 0.1.6 已发布，属预期）
+- `0.1.63` 含三项修复：设置页版本号显示错误、两个弹窗取消自动关闭、提示去重。
+  **不含透镜折射** —— 折射版单独保留在分支 `snapshot/lens-refraction`。
+- 回归：发布闸门 `check-release-gates.js` → **31/31 全过**（含新增 R13a/R13b）
 - 契约：`node DSH-App/tools/verify-glass-plugin.js` → 全绿
-- 最近还原点：`20261005-133334-FULL-PLUGIN-v2-settings-glass`（690 文件 / 17.8 MB，自检 19/19）
+- 最近还原点：`20261007-215845-MENU-STAYS-OPEN`（10-07 那批 298 个还原点里最新的一份）
 
 ---
 
@@ -23,9 +26,9 @@
 | 项 | 值 |
 |---|---|
 | 插件目录 | `E:\deepseek-V4-flash\glass-plugin`（**同时是本机 DSH 实际加载的插件**） |
-| 包名 / 线上版本 | `dsh-plugin-liquid-glass` / npm `latest = 0.1.6` |
+| 包名 / 线上版本 | `dsh-plugin-liquid-glass` / npm `latest = 0.1.62`；GitHub tag 已到 `v0.1.63` |
 | 验收基础设施 | `E:\deepseek-V4-flash\dsh-ui-lab`（工具、还原点、回归套件） |
-| GitHub | `https://github.com/smj-1680/dsh-plugin-liquid-glass`（`main`，5 个提交，最新 `1b0f4a3`） |
+| GitHub | `https://github.com/smj-1680/dsh-plugin-liquid-glass`（`main`，最新 `82f1751` = v0.1.63） |
 | 宿主 | DSH 桌面版 Electron，页面 `dsh-app://app/`，webServer `http://127.0.0.1:19387` |
 | DSH 自带 CLI | `E:\Deepseek\resources\runtime\cli\bin\dsh.cmd`（不在 PATH；`--version` → `0.2.0-rc.2`） |
 | 本机 profile | `C:\Users\神猫君\.dsh\profiles\desktop`，插件在本机是 **junction 指向开发目录** |
@@ -61,7 +64,9 @@
 | 版本号 | 随便改 | **必须先在 `release-manifest.json` 登记**，且**发过一次永久锁定** |
 
 `release-manifest.json` 是**公开版的唯一事实来源**，由 `check-release-gates.js` 强制。
-目前登记：`0.1.4` / `0.1.5` / `0.1.6`，均 `published`。
+目前登记：`0.1.4` / `0.1.5` / `0.1.6` / `0.1.62`（均 `published`）与
+`0.1.63`（`pending` —— 已登记待发，tag 与 Release 已在 GitHub，但 npm 通道因
+本机 npm 账号 2FA 故障暂未发布）。
 
 ### 2.2 发新版的步骤（照抄即可）
 
@@ -107,8 +112,20 @@ git push origin main --tags
 - 上传时改用 ASCII 副本 `install-liquid-glass.cmd`（同名文件，内容相同）
 - **两份必须同步修改**，否则用户下载到的和仓库里的不一致
 
-**已发生过一次不一致**：仓库里的 `install-liquid-glass.cmd` 被改成了增强版（4708 B），
-而 Release v0.1.6 上挂的还是旧版（3515 B）。**处理见 §4.5。**
+**已发生过一次不一致（已解决）**：仓库里的 `安装插件.cmd` 被改成增强版（4708 B），
+而 Release v0.1.6 上挂的还是旧版（3515 B）。
+**现状（2026-10-11 核实）**：
+
+| Release | 附件大小 | 状态 |
+|---|---|---|
+| v0.1.5 | 3515 B | 旧版（历史，无需回改） |
+| v0.1.6 | 3515 B | 旧版（历史，无需回改） |
+| v0.1.62 | 4708 B | ✅ 已是增强版 |
+| v0.1.63 | — | ⚠ **附件尚未上传**（tag 与源码已推，Release 由用户手动创建） |
+
+**发新版时记得**：上传前先把 `安装插件.cmd` 复制成 ASCII 名
+`install-liquid-glass.cmd`（附件名不支持非 ASCII，会退化成 `default.cmd`）。
+该副本已被 `.gitignore` 排除，**不进 git**，只在 Release 附件里存在。
 
 ### 2.4 提交信息格式（用户明确要求）
 
