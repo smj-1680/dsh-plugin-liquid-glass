@@ -49,9 +49,9 @@
     {
       "version": "0.1.63",
       "channel": "stable",
-      "status": "pending",
+      "status": "published",
       "note": "三项修复。①设置页「当前版本」显示错误：GLASS_VERSION_STABLE 停在 0.1.6（而 package.json 已是 0.1.62），界面一直显示 0.1.6；根因是源码注释声称「回归里有断言盯着两处一致性」但那条断言从未存在，本次补上（发布闸门 R13a/R13b）。②两个插件弹窗取消自动关闭（「仅支持桌面端」原 12 秒、「暂不支持浅色」原 6/10 秒），改为必须点「知道了」或点遮罩才关闭。③修复「点掉弹窗后又弹一次」：诊断日志显示一次「点浅色」会触发 enforce 两次（间隔 52ms）从而入队两次，现按 attempted 值做 3 秒冷却去重。并重新生成 INTEGRITY.json",
-      "publishedAt": null,
+      "publishedAt": "2026-10-22T12:04:51.796Z",
       "verifiedFingerprint": "daadfc742dd47efe"
     }
   ]
