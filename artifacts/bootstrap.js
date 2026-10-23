@@ -102,6 +102,23 @@
      detail, and 50-glass-surfaces.css for the keyframes that no longer have any caller. */
   function addCritical() {
     try {
+      /* ===== 用户在设置里关掉了「启用开场动画」→ 插件整套启动介入全停 =====
+         不是"少演一段"，而是把启动流程整段交回 DSH 官方：
+           · 四条 visibility 闸门（shell / composer / welcome / transcript）一条都不注入
+           · 黑场壳不建（本函数末尾那段）
+           · 入场编排由 html[data-dsh-glass-no-intro] 在样式里取消（见 50-glass-surfaces.css）
+         为什么要这么彻底：只停"播视频"那一段是不够的 —— 闸门本身会让界面分块出现，
+         用户看到的就是一次半成品加载（"载入历史…"时侧栏与顶栏还空着）。
+         代价是材质样式到位前约一秒是"未上玻璃"的界面，这正是"换回官方加载"的含义。 */
+      var introOff = false;
+      try {
+        introOff = !!(window.localStorage && window.localStorage.getItem('dsh-glass-intro') === '0');
+      } catch (e) { }
+      if (introOff) {
+        try { document.documentElement.setAttribute('data-dsh-glass-no-intro', '1'); } catch (e) { }
+        mark('bootstrap:no-intro（开场动画已关：不注入任何闸门、不建黑场）');
+        return;
+      }
       if (document.getElementById('dsh-glass-critical')) return;
       var st = document.createElement('style');
       st.id = 'dsh-glass-critical';
@@ -279,7 +296,27 @@
            所以 8 秒后若仍是"没人接手"的状态就自行移除。
            playIntro 接手时会设 __dshGlassIntroTakeover，兜底据此让位。 */
       try {
-        if (!document.getElementById('dsh-glass-intro')) {
+        /* ★ 先判开场动画会不会播。如果不会播，这里【绝不能】建壳：
+           壳的作用是"在 playIntro 接手之前挡住界面"，没人接手时它要等 8 秒兜底才被移除 ——
+           那 8 秒就是一块纯黑挡住整个界面。
+           两道判断与 lib/client.js 的 playIntro 保持一致（那边的顺序也是先档位后开关）：
+             · 画质档位 min/low（GLASS_QUALITY_LEVELS 里 intro:false）= 性能保护
+             · 用户在设置里关掉了「启用开场动画」
+           两个 localStorage 键都是同步可读的，所以能在这里判，不需要等客户端模块。 */
+        var skipIntroCover = false;
+        try {
+          var st = window.localStorage;
+          if (st) {
+            var q = st.getItem('dsh-glass-quality');
+            if (q === 'low' || q === 'min') skipIntroCover = true;
+            if (st.getItem('dsh-glass-intro') === '0') skipIntroCover = true;
+          }
+        } catch (e) { }
+        if (skipIntroCover) {
+          if (typeof window.__dshGlassDiagMark === 'function') {
+            window.__dshGlassDiagMark('bootstrap:intro-cover-skipped（开场动画不会播，不建壳）');
+          }
+        } else if (!document.getElementById('dsh-glass-intro')) {
           var cover = document.createElement('div');
           cover.id = 'dsh-glass-intro';
           cover.setAttribute('aria-hidden', 'true');

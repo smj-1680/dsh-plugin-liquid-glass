@@ -38,6 +38,21 @@
      磨砂感来自"白色叠加"，不是模糊 —— 所以 blur/saturate 保持甚至提高，
      降下去的是 alpha 与 sheen。 */
   --dsh-glass-alpha: 0.14;
+  /* 菜单专用密度（2026-10-23）。
+     为什么菜单不能直接用 --dsh-glass-alpha：
+       菜单是【文字密集】的浮层（「+」菜单一行行指令、模型菜单、斜杠菜单），
+       底下压着代码或正文，14% 的底读不清（用户实测："真的就是个纯透明"）。
+     但也不能高到 88% —— 那样压成一块几乎不透的黑板，用户实测："就是个纯黑色透明块"。
+     取值 0.45 的理由（实测数据，不是拍脑袋）：
+       · 本机 body 上【既没有 dsh-glass-over-image 也没有 dsh-glass-over-canvas】
+         （探针实测），所以"可读性下限"那段 0.42/0.46 从来没生效过；
+       · 0.45 正好落在插件自己给"内容面压图"定的那道下限（0.42/0.46）附近 ——
+         这是插件在"看得清"与"还像玻璃"之间已经验证过的量级；
+       · 保持底色为 --dsh-glass-tint（深色），靠【透出背景】获得颜色，
+         所以换壁纸会自动跟着变 —— 不要为此写死某个色相。
+     ⚠ 别再加 --dsh-glass-menu-tint 之类写死的颜色：曾经加过一个 #1b3a6b，
+        结果既不自适应（换壁纸会打架），又把透光能力扔了。 */
+  --dsh-glass-menu-alpha: 0.45;
   --dsh-glass-blur: 22px;
   --dsh-glass-saturate: 2.2;
   --dsh-glass-brightness: 1.05;
@@ -86,6 +101,14 @@ body.dsh-glass-over-image[data-ds-dark-theme] {
    worse than slightly reduced contrast. */
 body.dsh-glass-over-image [data-dsh-glass-surface] {
   --dsh-glass-alpha: 0.12;
+}
+
+/* 菜单在"背后真有画面"时再抬一档。
+   ⚠ 两种背景状态都要写：image（页面脚本打的）与 canvas（lib/client.js 打的）。
+      只写 image 就是这次踩的坑 —— 画布类壁纸永远走不到，菜单便停在 14%。 */
+body.dsh-glass-over-image,
+body.dsh-glass-over-canvas {
+  --dsh-glass-menu-alpha: 0.55;
 }
 
 /* ============================================================
@@ -803,4 +826,87 @@ html[data-dsh-glass-perf="low"] #dsh-glass-glow {
   [data-dsh-glass-surface] {
     transition: none;
   }
+}
+
+/* ============================================================
+   隐藏官方会话状态栏药丸（tok/s · 缓存命中 · 轮/步）
+
+   本插件的用量界面已经移到顶栏（conversation.session.header.actions /
+   glass-usage），composer dock 里那份官方 StatsPills 属于重复显示。
+
+   WHY THE OLD MECHANISM IS GONE
+   原先靠"占用同一槽位"挤掉官方组件（conversation.composer.dock，id=stats，
+   注册一个空组件、priority -1）。那是依赖槽位契约的：DSH 一改契约就漏。
+   实测在新版桌面端里官方药丸又渲染回来了，所以改成不依赖槽位的手段。
+
+   WHY THIS SELECTOR
+   每个药丸都由 PlainPill / DialogPill 渲染，两者都写 data-composer-stat=<id>
+   （见 @deepseek-ai/dsh-client-ui-chat/lib/client.js）。这是官方自带的数据属性，
+   不随构建哈希变化；类名 _anchor_xxxx / _pill_xxxx 则一变就失效。
+
+   WHY NOT THE CONTAINER
+   那个容器里还有本插件自己的「设置智能体」卡，藏容器会把我们自己的东西一起藏掉。
+   所以只藏药丸本身；容器里少了这几个子元素，布局自然收拢。
+   ============================================================ */
+[data-composer-stat] {
+  display: none !important;
+}
+
+/* ============================================================
+   官方「后台任务」展开面板：抬到助手消息之上
+
+   现象：点开后台任务那个面板，它会被助手消息盖住。
+
+   原因（已核对的代码事实）：
+     · 消息列被 30-glass-bubble-agent.css 设成
+           position: relative !important;  z-index: 1 !important;
+     · 官方该面板（@deepseek-ai/dsh-client-ui-jobs）的 .menu 只有
+           z-index: 100;          ← 注意：不带 !important
+   两者在同一个层叠上下文里比较。只要面板的最终 z-index 被任何更靠后的
+   声明压回 0/1 这一档，消息列那条 !important 就会赢 —— 这是被盖住的
+   最可能机制。所以这里用 !important + 更高值，把面板直接抬上去。
+
+   选择器为什么这样写：
+     · body >               官方菜单组件把面板 portal 到 document.body，是直接子元素
+     · [class*="_menu"]     类名形如 <构建哈希>_menu；哈希随 DSH 升级变，
+                            _menu 后缀稳定
+     · :has(ul[aria-label]) 只命中"列表型"菜单（后台任务面板的 body 是
+                            <ul aria-label="后台任务">）。不加这一层的话，
+                            模态对话框内部的小菜单会被抬到模态之上，那是反向 bug。
+
+   取值 9400：高于本插件自己的 8900（建议条）与 9000（用量下拉），
+   又远低于 2147483002 那一档的遮罩/弹窗，不会盖住模态。
+   ============================================================ */
+body > [class*="_menu"]:has(ul[aria-label]) {
+  z-index: 9400 !important;
+}
+
+/* ============================================================
+   开场动画关闭时：插件整套入场编排一并取消
+
+   由 bootstrap.js 在 <html> 上打 data-dsh-glass-no-intro（读 localStorage 的
+   dsh-glass-intro === '0'）。同一时刻它也不注入任何 visibility 闸门、不建黑场 ——
+   启动流程整段交回 DSH 官方。
+
+   为什么这里还必须显式取消动画：
+     入场那三条规则是 `animation: … backwards`，首帧就是 opacity:0。没有黑场遮着的
+     时候，这个首帧直接可见 → 界面会"自己淡进来/自己往上跳一段"，看着像残留。
+     而且 `.dsh-glass-enter-live [data-dsh-glass-xray]` 是靠动画结束才显形的
+     （visibility:hidden + 840ms 后 forwards），动画一取消，那块玻璃就永远不出现 ——
+     所以必须同时把 visibility 一起还原。
+
+   ⚠ 这是唯一的"关闭"开关位：以后改了入场选择器，记得同步这里。
+   ============================================================ */
+html[data-dsh-glass-no-intro] .dsh-glass-enter-live,
+html[data-dsh-glass-no-intro] .dsh-glass-enter-live.dsh-glass-enter-delayed,
+html[data-dsh-glass-no-intro] body.dsh-glass-welcome [class*="composerHero"] [class*="headline"],
+html[data-dsh-glass-no-intro] body.dsh-glass-welcome [class*="heroWorkspaceRow"] {
+  animation: none !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+html[data-dsh-glass-no-intro] .dsh-glass-enter-live [data-dsh-glass-xray] {
+  visibility: visible !important;
+  animation: none !important;
 }

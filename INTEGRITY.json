@@ -6,12 +6,12 @@
     "   由修改者自行承担，开发者只对未修改的官方版本负责（见 LICENSE）。"
   ],
   "package": "dsh-plugin-liquid-glass",
-  "version": "0.1.63",
+  "version": "0.1.70",
   "license": "MIT",
-  "generatedAt": "2026-10-22T11:32:54.689Z",
+  "generatedAt": "2026-10-23T08:27:52.423Z",
   "fileCount": 28,
-  "totalBytes": 2660471,
-  "overallFingerprint": "eca0ce57378048f131f0b725d76f646bc594dbeec03fba43c0fccd261f8d5bae",
+  "totalBytes": 2687654,
+  "overallFingerprint": "96270aaeb11101217667bbe2c173a1c9e91e8ec6a2ad4b84966655598809b596",
   "files": {
     "AUTHOR-NOTICE.txt": {
       "sha256": "34aef4549130a8a78806d68df6de12a393fa8c7ca83d8378f38db3045bb8e5e8",
@@ -50,12 +50,12 @@
       "bytes": 697
     },
     "artifacts/50-glass-surfaces.css": {
-      "sha256": "8f3bd0a8406e1c313e8d460821e953b1f599eb05b2d5a65101f62c93da0affd1",
-      "bytes": 40244
+      "sha256": "0de35601d33b021e22a086d66abae04af92ab6c00bbab57aafc7d4def54b8336",
+      "bytes": 46430
     },
     "artifacts/bootstrap.js": {
-      "sha256": "3bd40650f0e2a60b06469c42d422c6afcced0bd4c87f4a44320e10e2b8786323",
-      "bytes": 37987
+      "sha256": "2e7c6445d7a8544aa21ae336f93b1d71824e1c96332e45fb23b8edaefb67eb9f",
+      "bytes": 40446
     },
     "artifacts/client.js": {
       "sha256": "dede8c62a6d9b034505cad9e45b98491581349d301282c722ccdbb07e57e2ac1",
@@ -110,20 +110,20 @@
       "bytes": 15619
     },
     "lib/client.js": {
-      "sha256": "daadfc742dd47efe16e9f866314d6fabdfaf7271d85c650b322f60ad25760b2c",
-      "bytes": 384182
+      "sha256": "cea942f02e23ea6f1a1d1ccdf47b7a619a0295f26e7c42445f4a5c33bab2c7d4",
+      "bytes": 401491
     },
     "lib/index.js": {
       "sha256": "aa2ec74654fb8d9766ace2fc01e48f6fbbb47485d851085dd363456bc0233bf5",
       "bytes": 38256
     },
     "package.json": {
-      "sha256": "a42bd7e97d7c9c8c5275e74b0c411ea64fe5034dd50ab4503947685c0c0a0533",
+      "sha256": "7f8e9bdcda1a677f4f3f72d17bf148d027595a8727cce6ab2d3ef83e7857fcff",
       "bytes": 2510
     },
     "release-manifest.json": {
-      "sha256": "1f49a8b580043b8baad198f4a543bca6f6561cae5734a1ab3b1b5a936acc6fa0",
-      "bytes": 3205
+      "sha256": "860519ce07eb990fff3dba18c7bce754c6a345bda7dbc153e3a5ccecd0afaf98",
+      "bytes": 4434
     }
   }
 }
