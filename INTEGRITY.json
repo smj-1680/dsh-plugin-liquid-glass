@@ -8,10 +8,10 @@
   "package": "dsh-plugin-liquid-glass",
   "version": "0.1.70",
   "license": "MIT",
-  "generatedAt": "2026-10-23T08:27:52.423Z",
+  "generatedAt": "2026-10-23T09:08:13.487Z",
   "fileCount": 28,
-  "totalBytes": 2687654,
-  "overallFingerprint": "96270aaeb11101217667bbe2c173a1c9e91e8ec6a2ad4b84966655598809b596",
+  "totalBytes": 2690013,
+  "overallFingerprint": "ecc9fd4a090b34c7b2f8066a760bfacea835ec18a52b4b27a59172cdc74531f1",
   "files": {
     "AUTHOR-NOTICE.txt": {
       "sha256": "34aef4549130a8a78806d68df6de12a393fa8c7ca83d8378f38db3045bb8e5e8",
@@ -26,12 +26,12 @@
       "bytes": 2471
     },
     "README.en.md": {
-      "sha256": "dd4a620dc38780ba1be7fd33484a6fae77726b175fa665af59925e399cabeeeb",
-      "bytes": 9161
+      "sha256": "aa31f9cca280aa6f6cff807c996380f24ba255895e8910efa7f0fb2d92510dad",
+      "bytes": 10422
     },
     "README.md": {
-      "sha256": "998587fbb847577ddbf1939ef1050644146a415e83aa1729a0498859ac83af04",
-      "bytes": 12906
+      "sha256": "fc31603d947bfd0bbbe623148a39487908caab47fdf9dc66ea108a02bd028758",
+      "bytes": 13953
     },
     "artifacts/10-glass-composer.css": {
       "sha256": "b97ae12945876e47df1820814cf8a705b5f19e5fcc88ade6e35518ddd5d04bd4",
@@ -122,8 +122,8 @@
       "bytes": 2510
     },
     "release-manifest.json": {
-      "sha256": "860519ce07eb990fff3dba18c7bce754c6a345bda7dbc153e3a5ccecd0afaf98",
-      "bytes": 4434
+      "sha256": "e5acf725a7b94b71374a9159e2fea004d32a3d22314037e87b4634ce879ca1a6",
+      "bytes": 4485
     }
   }
 }

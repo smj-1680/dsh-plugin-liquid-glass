@@ -12,20 +12,27 @@ The material is translucent glass: a tint fill, a background blur, inner highlig
 a hairline border and a drop shadow.
 
 > **Wording note:** this line used to say "the composer (true refraction)". The current
-> release (0.1.62) uses a **background blur** (`backdrop-filter: blur`), with **no
+> release (0.1.70) uses a **background blur** (`backdrop-filter: blur`), with **no
 > displacement refraction** — `git show HEAD:artifacts/client.js` contains zero
-> occurrences of `dsh-lens`. The refraction version (an SVG `feDisplacementMap` lens)
-> is still in local development and has not been committed. The marketplace checks the
-> description against the code, so "refraction" is deliberately not claimed here; it
-> will be restored once it actually ships.
+> occurrences of `dsh-lens`. The refraction version (an SVG height field +
+> `feDisplacementMap` lens) lives on the `snapshot/lens-refraction` branch and is **not
+> merged into main**, so it is not part of this release either. The marketplace checks
+> the description against the code, so "refraction" is deliberately not claimed here;
+> it will be restored once it actually ships.
 
 **Wallpaper plugins:** presence is detected by *capability*, not by vendor, across
 three layers (explicit contract / known hooks / generic structural test), so **any
 wallpaper plugin can be used alongside this one**. You can also opt out of the
 plugin's own background explicitly with `data-dsh-glass-canvas="off"`.
 
-> **Status: v0.1.62 (published to npm)**
+> **Status: v0.1.70 (published to npm)**
 >
+> - **Three toggles** (`Settings → Liquid Glass`): **token-saving advice**, **intro
+>   animation**, and **start in a new session**. The last two are interlocked: when the
+>   intro is unavailable (switched off, or the quality tier is Very low / Low) the
+>   new-session toggle is greyed out and treated as off. Turning the intro off also
+>   stops the plugin's entire boot involvement — no visibility gates, no black cover,
+>   no entrance choreography — so DSH's own loading flow is used instead.
 > - **First install asks for a quality level.** On the first launch after installing
 >   (once the intro finishes) a five-tier picker appears so you choose for your own
 >   machine - picking too high causes stutter. Change it later in Settings -> Liquid Glass.
@@ -99,10 +106,11 @@ restores the stock appearance.
 
 > ⚠ **Factual correction:** this table used to read
 > "**True refraction** — SVG displacement map + blur + pointer highlight" for the
-> composer. In release 0.1.62 the composer's material is a background blur only
+> composer. In release 0.1.70 the composer's material is a background blur only
 > (`backdrop-filter: blur(var(--dsh-glass-blur, 32px)) saturate(...) brightness(...)`);
-> there is no SVG displacement map in the shipped code. The refraction version is
-> still in local development. The paragraph below describes the *design intent* that
+> there is no SVG displacement map in the shipped code. The refraction version lives on
+> the `snapshot/lens-refraction` branch and is not merged into main. The paragraph below
+> describes the *design intent* that
 > the refraction work is meant to serve — it is kept for context, not as a claim
 > about the current release.
 
@@ -122,6 +130,14 @@ not a preference.
 - **Quality tier** — Very low / Low / Medium / High / Very high.
   Lower tiers drop the blur (the expensive part) and, at the lowest tiers, skip the
   intro. Changing this **requires a DSH restart** to fully apply.
+- **Token-saving advice** — shows or hides the suggestion strip under the top bar.
+  Only meaningful if you do not already run a token-saving plugin.
+- **Intro animation** — the black cover, the video and the title reveal. On by default;
+  the two lowest quality tiers cannot enable it (that is a performance guard, so the
+  toggle is greyed out there rather than silently ignored).
+- **Start in a new session** — on: launch lands in a blank session, which is what the
+  intro's composer beat is designed around; off: the last conversation is reopened.
+  Greyed out (and treated as off) whenever the intro is unavailable.
 - **Snapshot updates** — off by default (stable channel). Turning it on switches
   "Check for updates" to the snapshot channel.
 - **Check for updates** — queries the channel you selected.
