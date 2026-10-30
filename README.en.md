@@ -12,7 +12,7 @@ The material is translucent glass: a tint fill, a background blur, inner highlig
 a hairline border and a drop shadow.
 
 > **Wording note:** this line used to say "the composer (true refraction)". The current
-> release (0.1.70) uses a **background blur** (`backdrop-filter: blur`), with **no
+> release (0.1.71) uses a **background blur** (`backdrop-filter: blur`), with **no
 > displacement refraction** — `git show HEAD:artifacts/client.js` contains zero
 > occurrences of `dsh-lens`. The refraction version (an SVG height field +
 > `feDisplacementMap` lens) lives on the `snapshot/lens-refraction` branch and is **not
@@ -25,7 +25,7 @@ three layers (explicit contract / known hooks / generic structural test), so **a
 wallpaper plugin can be used alongside this one**. You can also opt out of the
 plugin's own background explicitly with `data-dsh-glass-canvas="off"`.
 
-> **Status: v0.1.70 (published to npm)**
+> **Status: v0.1.71 (published to npm)**
 >
 > - **Three toggles** (`Settings → Liquid Glass`): **token-saving advice**, **intro
 >   animation**, and **start in a new session**. The last two are interlocked: when the
@@ -106,7 +106,7 @@ restores the stock appearance.
 
 > ⚠ **Factual correction:** this table used to read
 > "**True refraction** — SVG displacement map + blur + pointer highlight" for the
-> composer. In release 0.1.70 the composer's material is a background blur only
+> composer. In release 0.1.71 the composer's material is a background blur only
 > (`backdrop-filter: blur(var(--dsh-glass-blur, 32px)) saturate(...) brightness(...)`);
 > there is no SVG displacement map in the shipped code. The refraction version lives on
 > the `snapshot/lens-refraction` branch and is not merged into main. The paragraph below

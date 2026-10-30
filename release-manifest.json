@@ -61,6 +61,13 @@
       "note": "五项改动（不含真折射玻璃，那套仍在 snapshot/lens-refraction 分支，未合入）。①隐藏新版 DSH 又冒出来的官方会话状态栏药丸（轮/步·tok/s·缓存命中）：改用官方自带的 data-composer-stat 属性，不再依赖占用同一槽位遮蔽（契约一变就漏）。②设置页新增省token建议开关。③设置页新增启用开场动画与启动DSH后进入新会话两个开关；后者与开场动画联动，开场不可用（开关关闭或档位极低/低）时置灰并按关闭处理。④开场动画关闭时插件整套启动介入全停：不注入四条 visibility 闸门、不建黑场壳、取消入场编排（含 data-dsh-glass-xray 的 visibility 还原），启动流程交回官方加载。⑤后台任务面板被助手消息遮挡：把官方菜单层抬到消息之上；官方菜单材质改为与自绘浮层同一套 CSS 变量配方（新增 --dsh-glass-menu-alpha，默认 0.45，有画面时 0.55），并按低/极低档位兜底。并重新生成 INTEGRITY.json",
       "verifiedFingerprint": "cea942f02e23ea6f",
       "publishedAt": "2026-10-23T08:38:20.848Z"
+    },
+    {
+      "version": "0.1.71",
+      "channel": "stable",
+      "status": "pending",
+      "note": "修复 DSH 0.2.1-rc.3 升级后「背景割裂」。根因：插件把整窗背景画在一个构建期 CSS-module 哈希上（rc.2 的 BynINW_frame），rc.3 换成 mP3x-q_frame，JS 内联写背景与 CSS 兜底两条路同时命中 0 个元素；而新布局里侧栏自己带不透明底色 --dsw-specific-sidebar-fill，于是侧栏实色、其余透出壁纸，出现硬接缝。本次把 7 个构建期哈希的活引用全部去掉，改成语义/结构判据：整窗外框 -> [class*=\"_frame\"]:has([class*=\"_sidebarCol\"])；侧栏内层 -> [class*=\"_sidebarCol\"] 下的 _root / _list / _listArea；官方上下文圆环 -> [data-composer-dock] > [class*=\"_root\"]（官方 JSX 里 ContextMeter 只在没有 activity 药丸时渲染，是该容器的直接子元素）。另新增启动选择器自检：启动 3 秒后核对 4 个与页面状态无关的选择器，命中 0 个就 console.warn + 写诊断日志 + 暴露 window.__dshGlassSelCheck，让下次 DSH 换哈希时立刻可见而不是静默降级。中英 README 版本号同步到 0.1.71。",
+      "verifiedFingerprint": "cdb28dfc554a9819"
     }
   ]
 }

@@ -6,12 +6,12 @@
     "   由修改者自行承担，开发者只对未修改的官方版本负责（见 LICENSE）。"
   ],
   "package": "dsh-plugin-liquid-glass",
-  "version": "0.1.70",
+  "version": "0.1.71",
   "license": "MIT",
-  "generatedAt": "2026-10-23T09:08:13.487Z",
+  "generatedAt": "2026-10-30T10:01:17.906Z",
   "fileCount": 28,
-  "totalBytes": 2690013,
-  "overallFingerprint": "ecc9fd4a090b34c7b2f8066a760bfacea835ec18a52b4b27a59172cdc74531f1",
+  "totalBytes": 2695054,
+  "overallFingerprint": "3503f57556ab11f1a9bdffc577997324fe28752434d7822f85620a06511a7d92",
   "files": {
     "AUTHOR-NOTICE.txt": {
       "sha256": "34aef4549130a8a78806d68df6de12a393fa8c7ca83d8378f38db3045bb8e5e8",
@@ -26,11 +26,11 @@
       "bytes": 2471
     },
     "README.en.md": {
-      "sha256": "aa31f9cca280aa6f6cff807c996380f24ba255895e8910efa7f0fb2d92510dad",
+      "sha256": "76a295a1d7b1bc35cf8fe6528010ac59d0fd2ca95481147b35266cdc4c59c6ab",
       "bytes": 10422
     },
     "README.md": {
-      "sha256": "fc31603d947bfd0bbbe623148a39487908caab47fdf9dc66ea108a02bd028758",
+      "sha256": "38ca19f93573f2f9678652ed36f2811cc6748b1befb4ed43aaa0d121c3660415",
       "bytes": 13953
     },
     "artifacts/10-glass-composer.css": {
@@ -110,20 +110,20 @@
       "bytes": 15619
     },
     "lib/client.js": {
-      "sha256": "cea942f02e23ea6f1a1d1ccdf47b7a619a0295f26e7c42445f4a5c33bab2c7d4",
-      "bytes": 401491
+      "sha256": "cdb28dfc554a981942a7e201c346bb5f33c4635eb36a99f963a95678036c2edc",
+      "bytes": 405301
     },
     "lib/index.js": {
       "sha256": "aa2ec74654fb8d9766ace2fc01e48f6fbbb47485d851085dd363456bc0233bf5",
       "bytes": 38256
     },
     "package.json": {
-      "sha256": "7f8e9bdcda1a677f4f3f72d17bf148d027595a8727cce6ab2d3ef83e7857fcff",
+      "sha256": "11d1a31c372c65c42bcfe10481e0c7d57f79dda66e9c09746926e14d0b36bf8c",
       "bytes": 2510
     },
     "release-manifest.json": {
-      "sha256": "e5acf725a7b94b71374a9159e2fea004d32a3d22314037e87b4634ce879ca1a6",
-      "bytes": 4485
+      "sha256": "061b947df014a5e3a291f6741e665deb77e2989c1773bc9b0a768517c435bf17",
+      "bytes": 5716
     }
   }
 }
