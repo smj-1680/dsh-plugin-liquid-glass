@@ -65,9 +65,10 @@
     {
       "version": "0.1.71",
       "channel": "stable",
-      "status": "pending",
+      "status": "published",
       "note": "修复 DSH 0.2.1-rc.3 升级后「背景割裂」。根因：插件把整窗背景画在一个构建期 CSS-module 哈希上（rc.2 的 BynINW_frame），rc.3 换成 mP3x-q_frame，JS 内联写背景与 CSS 兜底两条路同时命中 0 个元素；而新布局里侧栏自己带不透明底色 --dsw-specific-sidebar-fill，于是侧栏实色、其余透出壁纸，出现硬接缝。本次把 7 个构建期哈希的活引用全部去掉，改成语义/结构判据：整窗外框 -> [class*=\"_frame\"]:has([class*=\"_sidebarCol\"])；侧栏内层 -> [class*=\"_sidebarCol\"] 下的 _root / _list / _listArea；官方上下文圆环 -> [data-composer-dock] > [class*=\"_root\"]（官方 JSX 里 ContextMeter 只在没有 activity 药丸时渲染，是该容器的直接子元素）。另新增启动选择器自检：启动 3 秒后核对 4 个与页面状态无关的选择器，命中 0 个就 console.warn + 写诊断日志 + 暴露 window.__dshGlassSelCheck，让下次 DSH 换哈希时立刻可见而不是静默降级。中英 README 版本号同步到 0.1.71。",
-      "verifiedFingerprint": "cdb28dfc554a9819"
+      "verifiedFingerprint": "cdb28dfc554a9819",
+      "publishedAt": "2026-10-30T10:19:12.024Z"
     }
   ]
 }
