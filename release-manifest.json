@@ -73,9 +73,10 @@
     {
       "version": "0.1.72",
       "channel": "stable",
-      "status": "pending",
+      "status": "published",
       "note": "修复 DSH 0.2.2-rc.1 上的两处回归。① 会话头部标签栏变大：0.2.2 把标签做成大热区（min-height:35px + margin:-10px 负边距，让 35px 的盒子向上溢出 10px，文字仍对齐 25px 那一行），而插件给标签画的 pill 是按旧版 26px 宽标签调的（left/right 各外扩 16px）；配合新版 gap:32px 后相邻 pill 净空正好为 0，整排看起来是一串大盒子。改为：标签盒压回 25px（文字位置完全不变：padding-top 4 + margin-top -4 = 0），pill 横向外扩 16px -> 4px（chip 宽 78 -> 54，净空 0 -> 24；整排总宽不变，所以右侧内容不会跳）。判据用 viewTabs 语义后缀 + role=\"tab\"，不用构建期哈希。② 顶栏三颗药丸的弹层点空白无法关闭：该弹层注册在 shell.overlay，开合状态在模块级 popState，关闭的唯一入口是再点同一颗药丸，从来没有\"点击外部\"的监听。补上捕获阶段的 pointerdown + Escape：点面板内或药丸条内不动（交给药丸自己的 toggle 处理换面板/收起），其余任何位置关闭；判据只用插件自己的 data-glass=\"panel\" / data-glass=\"usage-bar\"，不碰官方类名。中英 README 版本号同步到 0.1.72。",
-      "verifiedFingerprint": "b6af50836f9a180b"
+      "verifiedFingerprint": "b6af50836f9a180b",
+      "publishedAt": "2026-11-06T07:01:49.933Z"
     }
   ]
 }
