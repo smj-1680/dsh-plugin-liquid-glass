@@ -464,10 +464,20 @@ body.dsh-glass-ui > * {
    should not cover. Giving the tab itself a z-index would have created a stacking
    context and pushed the pill over the top bar's material layer.
 
-   Geometry is chosen so nothing moves: the tab keeps its 26x25 box and its 9px
+   Geometry is chosen so nothing moves: the tab keeps its own box and its 9px
    bottom padding (that padding is what draws the active underline), and the pill
-   simply overhangs it by 16px on each side and 2.5px above and below. */
+   overhangs it slightly so the chip reads as a control rather than a text run.
+
+   ⚠ 2026-11-06（DSH 0.2.2）修正横向外扩量：-16px → -4px。
+     原来的 -16px 是配旧版标签调的 —— 那时标签只有 26px 宽（文字宽度），
+     外扩 16px 才够一个"chip"。0.2.2 给标签加了 --dsh-tab-hit-inline:10px，
+     标签盒本身已是 46px 宽（26 + 左右各 10），再外扩 16px 就是 78px；
+     而 0.2.2 的 viewTabs 正好 gap:32px —— 16+16 恰好把 gap 吃满，
+     相邻两个 pill 几乎相接，整排看起来就是一串超大盒子（用户反馈"标签整体变大"）。
+     现在只留 -4px 的余量：chip 宽 54px、chip 间净空 24px，既不贴死也不臃肿。
+   ============================================================ */
 [data-dsh-glass-topbar] [role="tab"] {
+  /* pill 的定位锚点（::before 是 absolute）。删掉这条 pill 会跑到错误的位置。 */
   position: relative;
 }
 
@@ -475,8 +485,8 @@ body.dsh-glass-ui > * {
   content: "";
   position: absolute;
   z-index: auto;
-  left: -16px;
-  right: -16px;
+  left: -4px;
+  right: -4px;
   top: -3px;
   bottom: 3px;
   border-radius: 8px;
@@ -909,4 +919,42 @@ html[data-dsh-glass-no-intro] body.dsh-glass-welcome [class*="heroWorkspaceRow"]
 html[data-dsh-glass-no-intro] .dsh-glass-enter-live [data-dsh-glass-xray] {
   visibility: visible !important;
   animation: none !important;
+}
+
+/* ============================================================
+   会话头部标签栏：把被撑大的标签盒压回 25px（DSH 0.2.2 起的外观回归）
+
+   官方 0.2.2（dsh-client-ui-conversation）把标签改成了"大热区"：
+
+     .an3WzG_viewTabs { min-height:25px; gap:32px }
+     .an3WzG_tab {
+       min-height:35px;
+       margin:-10px calc(-1 * var(--dsh-tab-hit-inline)) 0;  ← 负边距把 35px 的盒子上顶，
+       padding:10px var(--dsh-tab-hit-inline) 9px;             让文字仍落在 25px 那一行
+       background:0 0; border:none;
+     }
+
+   于是标签的【盒子】比它所在的栏高出 10px（2026-11-06 实机实测：
+   容器 an3WzG_viewTabs 为 y=90 h=25，而 an3WzG_tab 为 y=80 h=35）。
+   文字位置是对的，但任何贴着元素边界画的东西 —— 材质、描边、悬停高光 ——
+   都会跟着放大 10px，看起来就是"标签整体变大"。
+
+   这里只压【盒子的可见高度】，不碰文字位置：
+     box  = padding-top 4 + 行高 16 + padding-bottom 5 = 25px
+     text = margin-top(-4) + padding-top(4) = 0  → 文字仍从 viewTabs 顶边开始
+   横向完全不动：左右内边距依旧用官方的 --dsh-tab-hit-inline，宽度与横向热区不变。
+
+   判据用 role="tab" + viewTabs 的语义后缀，不用哈希：
+     · 不用 [class*="tab"] —— 那会把 _tabLabel / _tabActive / _tabHost_ 一起命中；
+     · 不用哈希名 —— 0.2.1 → 0.2.2 已经换过一次（BynINW_* → an3WzG_*），
+       而且 0.2.2 还引入了 dockkit 的 _tabStrip_3oazc_* / _tab_3oazc_*，
+       哈希名在这里完全不可靠。
+   ============================================================ */
+[class*="viewTabs"] > button[role="tab"],
+[class*="viewTabs"] > [role="tab"] {
+  box-sizing: border-box !important;
+  min-height: 25px !important;
+  padding-top: 4px !important;
+  padding-bottom: 5px !important;
+  margin-top: -4px !important;
 }
