@@ -81,9 +81,10 @@
     {
       "version": "0.1.80",
       "channel": "stable",
-      "status": "pending",
+      "status": "published",
       "note": "0.1.80 —— 只含两个修复，其余一概不动（基线 = 0.1.72）。① 启动时应用画质档：此前 applyGlassQuality() 只在首次安装选择器和\"保存更改\"里被调用，启动路径上没有调用，于是重启后 html[data-dsh-glass-perf] 属性不存在、CSS 档位规则全部回落到基础值（≈高档），设置页却仍显示用户保存的档位 —— 表现为\"设置里是极低、实际是高画质\"，连带选极低时装饰条纹不退场（被报成\"背景紫色在闪烁\"）。现在在挂载最早处补上 applyGlassQuality(readGlassQuality(), false)，只应用不写回存储。② 智能体卡片模型显示改为派生：原来 const [model] = useState(DeepSeek-V41-Flash) 是写死的字符串，切换会话后 dirCurrent 变了但 state 没人更新，卡片永远停在写死值上；现在每次渲染都从 sel（刚点选的乐观值）→ dirCurrent（官方 directoryFor 的 current）取 id，再用 dirModels/dirEfforts 翻译成显示名，读不到时显示占位符而不是假模型名；另加一份\"最近一次真实值\"的记忆（AGENT_LAST_CURRENT），新会话拿不到 sid、directoryFor 返回 null 时用它兜底，避免模型/强度整块为空。 ③ 补充：模型目录缓存落盘（~/.dsh/glass-model-cache.json + /dsh-glass/model-cache 路由）——新会话拿不到 sessionId 时 directoryFor 返回 null，导致下拉菜单显示「模型目录尚未加载」、模型与强度两格为空；现在加载成功后把精简目录落盘，冷启动/新会话先读它填上，读不到才显示占位符。 ④ 背景预设：把 0.2.0 的壁纸设置改成【两个原生背景】的选择器（点阵蓝 / 晚霞紫），不引入壁纸文件与 Wallpaper Engine 那条线。宿主新增 /dsh-glass/canvas-preset 路由（落 ~/.dsh/glass-canvas-preset.json，跨端口保留），默认画布分支按预设成套切换 background-image / background-size / background-color（两个预设层数不同：dots 5 层含点阵、dusk 4 层无点阵，尺寸必须成套换否则 3px 那层会把径向压成整屏单色），stateKey 纳入预设所以切换即时生效，设置页新增「背景」区两键。 ⑤ 修「用户气泡在指针进入输入框时消失」：① 悬停不再抬高填充（原 13%→17%，over-image 时 46%），因为输入框是盖在消息流之上的浮层，填充一变就把下面的气泡盖没；② 移除输入框自身的 transition（background-color/border-color/box-shadow）—— 带 backdrop-filter 的元素做属性过渡时会被重新光栅化、背景采样掉，背后内容整块消失，这与「绝不对带 backdrop-filter 的元素做 opacity/transform 动画」是同一条约束。代价：聚焦蓝环不再渐显，直接亮起。 ⑥ 设置页把「更新」区移到最后（画质 → 背景 → 提示 → 动画 → 更新）：更新是最低频操作，不该占着第二屏。 ⑦ 删除「保存更改」：这些设置本来就是热生效的（画质改 html[data-dsh-glass-perf]、建议派发事件、动画/通道写存储），留保存按钮反而让人以为不点不算数。改为任一选项一变即落盘并应用（用 draft===saved 判重，无需首次运行守卫）；同时把画质下方那句\"必须重启才能完全生效\"改成\"改完立即生效\"。 ⑧ 取消画质档位，固定「中」：用户实测中等最通透、刚好有液态感。GLASS_QUALITY_DEFAULT 改为 mid，readGlassQuality() 一律返回 mid（旧用户存过的 high/max 也会被拉回），设置页移除档位网格改为一句说明，首次安装的画质选择弹窗停掉（函数保留，去掉 return 即可恢复）。 ⑨ 设置页「画质」整块删除（固定 mid 已在代码里，不再需要这一栏），同时移除它顶部的分隔线；首次安装的画质选择弹窗调用点注释掉（函数保留）。插件本来就靠主题锁定「仅适配深色」，这部分无需改动。",
-      "verifiedFingerprint": "f267f98e87dbb4ad"
+      "verifiedFingerprint": "f267f98e87dbb4ad",
+      "publishedAt": "2026-11-07T11:30:14.247Z"
     }
   ]
 }
