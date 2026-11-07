@@ -440,6 +440,60 @@
     } catch (e) { return false; }
   }
 
+  /* 只为【刚刚插入的节点】补气泡标记（2026-11-07）
+     ────────────────────────────────────────────────────────────
+     为什么需要它：整轮扫描在滚动/流式输出时会被主动跳过
+       if (recent > 25) { mark('client:full-scan-skipped'); return; }
+     而受限扫描（scan(true)）只处理侧栏与顶栏，不碰气泡。
+     于是新滚出来的用户气泡要等滚动停下、下一轮整扫描才拿到材质 ——
+     中间那一段就是官方的黑底气泡（用户报的"从底部滚上来还是会黑"）。
+
+     这里只走【新增子树】，成本与新增量成正比，不遍历整条对话、不强制整页布局；
+     并且沿用"最内层优先"的判据：某个候选内部若还有能通过的节点，就跳过外层，
+     免得把材质挂到包裹节点上（那会让气泡看起来比内容大一圈）。 */
+  function markBubblesIn(records) {
+    try {
+      var comp = document.querySelector('[data-dsh-glass="composer"]');
+      var scope = bubbleScope();
+      var compTop = comp ? comp.getBoundingClientRect().top : Infinity;
+      var colRight = scope.getBoundingClientRect().right;
+      var cands = [];
+      for (var ri = 0; ri < records.length; ri++) {
+        var added = records[ri].addedNodes;
+        if (!added) continue;
+        for (var ai = 0; ai < added.length; ai++) {
+          var node = added[ai];
+          if (!node || node.nodeType !== 1) continue;
+          cands.push(node);
+          try {
+            var sub = node.querySelectorAll ? node.querySelectorAll('*') : [];
+            for (var k = 0; k < sub.length && k < 400; k++) cands.push(sub[k]);
+          } catch (e) { }
+        }
+      }
+      for (var ci = 0; ci < cands.length; ci++) {
+        var el = cands[ci];
+        try {
+          if (el.getAttribute(MARK) === 'bubble-user') continue;
+          var r = el.getBoundingClientRect();
+          if (!isBubbleBox(el, r, compTop, colRight)) continue;
+          /* 最内层优先：内部还有能通过的，就让内层去拿标记 */
+          var hasInner = false;
+          try {
+            var kids = el.querySelectorAll('*');
+            for (var ki = 0; ki < kids.length && ki < 200; ki++) {
+              var kr = kids[ki].getBoundingClientRect();
+              if (isBubbleBox(kids[ki], kr, compTop, colRight)) { hasInner = true; break; }
+            }
+          } catch (e) { }
+          if (hasInner) continue;
+          el.setAttribute(MARK, 'bubble-user');
+          bindPointer(el);
+        } catch (e) { }
+      }
+    } catch (e) { }
+  }
+
   function markUserBubble() {
     var targets = findUserBubbles();
     if (!targets.size) return false;
@@ -2734,6 +2788,11 @@
             for (var ai = 0; ai < added.length; ai++) adoptComposerNode(added[ai]);
           }
         } catch (e) { }
+
+        /* 同一批新增节点里若有用户气泡，立刻上材质 —— 不等整扫描。
+           整扫描在滚动/流式时会被下面那段 recent > 25 主动跳过，
+           气泡若只靠它，就会先以官方黑底出现（用户报的现象）。 */
+        try { markBubblesIn(records); } catch (e) { }
 
         var now = performance.now();
         var busy = (now - lastChange) < 400;      // changes are still streaming in

@@ -101,17 +101,23 @@ body.dsh-glass-foreign-backdrop #dsh-glass-glow {
    box-shadow 的【层数必须保持 7 层】—— 聚焦蓝环的渐显是靠逐层插值实现的。 */
 [data-dsh-glass="composer"] {
   position: relative;
-  isolation: isolate;
+  /* ⚠ 2026-11-07：isolate → auto（与气泡同一个原因）。
+     它同样靠 backdrop-filter 采样背后内容，隔离组会让采样在重排后失效 ——
+     表现为"指针一进输入框，背后的气泡就被糊没 / 气泡变回官方黑底"。 */
+  isolation: auto;
 
   /* 材质：几乎不留白雾，让背后的东西透上来 */
   background: color-mix(in srgb, var(--dsw-alias-bg-layer-2, #22242a) 13%, transparent) !important;
 
   /* 折射：模糊 + 大幅提饱和，把背后的颜色"挤"出来
-     ⚠ 模糊半径必须走 --dsh-glass-blur（画质档变量），不能写死数字。
-       写死会让中/高/极高档调不动它、低/极低档承诺的"关磨砂"也落空。
-       32px 作为兜底值保留：变量未定义时行为与改前完全一致。 */
-  -webkit-backdrop-filter: blur(var(--dsh-glass-blur, 32px)) saturate(240%) brightness(1.06) contrast(1.04);
-  backdrop-filter: blur(var(--dsh-glass-blur, 32px)) saturate(240%) brightness(1.06) contrast(1.04);
+     ⚠ 2026-11-07：模糊半径用 min() 封顶在 5px。
+        原因：输入框是盖在消息流之上的浮层，它会压在用户气泡上。原来这里吃的是
+        --dsh-glass-blur（高档 32px），背后那行白字被 32px 一糊就成一片灰雾 ——
+        用户看到的就是"指针进入输入框，气泡就消失"（其实是被糊没了）。
+        用 min() 而不是写死数值，是为了让画质档仍然能把它压到 0：
+        低/极低档把 --dsh-glass-blur 设成 0px 时，min(0px, 5px) = 0，承诺的"关磨砂"照样成立。 */
+  -webkit-backdrop-filter: blur(min(var(--dsh-glass-blur, 32px), 5px)) saturate(240%) brightness(1.06) contrast(1.04);
+  backdrop-filter: blur(min(var(--dsh-glass-blur, 32px), 5px)) saturate(240%) brightness(1.06) contrast(1.04);
 
   /* 透镜边缘：去掉白雾后，边缘要更明确一些，否则整块会显得没有形体 */
   border: 0.5px solid rgba(255, 255, 255, 0.28) !important;
@@ -135,14 +141,18 @@ body.dsh-glass-foreign-backdrop #dsh-glass-glow {
     0 22px 48px -16px rgba(0, 0, 0, 0.55),
     0 2px 8px -2px rgba(0, 0, 0, 0.38) !important;
 
-  /* 缓动：分层错开，接近 Apple 那种"材质先动、光晕随后"的呼吸感
-     · 底色/描边  420ms 平滑减速
-     · 阴影       560ms 更长的 ease-out，让蓝环慢慢亮起而不是弹出来
-     注意 box-shadow 与 background/border 用不同时长，是有意为之。 */
-  transition:
-    background-color 420ms cubic-bezier(.16, 1, .3, 1),
-    border-color 420ms cubic-bezier(.16, 1, .3, 1),
-    box-shadow 560ms cubic-bezier(.22, 1, .36, 1);
+  /* 缓动：**故意设为 none**（2026-11-07 修的 bug）
+     ────────────────────────────────────────────────────────────
+     原来这里是三段过渡：
+       background-color 420ms / border-color 420ms / box-shadow 560ms
+     而本元素带着 backdrop-filter（上面 blur + saturate 那条）。在 Chromium 上，
+     【给带 backdrop-filter 的元素做属性过渡】会让它被重新光栅化成一个独立图层，
+     这个过程中背景采样会掉 —— 于是背后压在输入框下面的用户气泡会在
+     "指针进入输入框"的瞬间整个消失，移开又回来（用户报的就是这个）。
+     这与我们早就记下的一条约束是同一类问题：绝不对带 backdrop-filter 的元素
+     做 opacity/transform 动画 —— 这里补上"也别过渡 background/box-shadow"。
+     代价：聚焦时那圈蓝环不再渐显，而是直接亮起。可读性与正确性优先。 */
+  transition: none;
 }
 
 /* ---------- 折射层：真正的"液态"扭曲 ----------
@@ -187,10 +197,13 @@ body.dsh-glass-foreign-backdrop #dsh-glass-glow {
     );
 }
 
-/* ---------- 悬停：提亮一档 ---------- */
+/* ---------- 悬停：不再抬高填充 ----------
+   2026-11-07 修：输入框是【盖在消息流之上】的浮层，它下面经常正压着一条用户气泡。
+   原来悬停把填充从 13% 抬到 17%（over-image 时 46%），气泡就在"指针进入输入框"的
+   那一刻被盖没、移开又出现 —— 用户报的"气泡会消失"就是这个。
+   现在悬停只改描边与投影，不碰填充：无论鼠标在不在，背后内容看到的浓度都一样。 */
 @media (hover: hover) {
   [data-dsh-glass="composer"]:hover {
-    background: color-mix(in srgb, var(--dsw-alias-bg-layer-2, #22242a) 17%, transparent) !important;
     border-color: rgba(255, 255, 255, 0.34) !important;
     /* 与静置态同为 7 层，蓝环仍是 0 —— 悬停不上蓝，只有聚焦才渐显 */
     box-shadow:
@@ -310,10 +323,13 @@ html[data-dsh-glass-perf="min"] [data-dsh-glass="composer"]::before {
 
 @media (hover: hover) {
   body.dsh-glass-over-image [data-dsh-glass="composer"]:hover {
-    background: color-mix(in srgb, var(--dsw-alias-bg-layer-2, #22242a) 46%, transparent) !important;
+    /* 2026-11-07：这一档原来是 46%，悬停时直接把背后的气泡盖没。
+       悬停不再抬填充（理由见上面"悬停：不再抬高填充"那段）。 */
+    background: color-mix(in srgb, var(--dsw-alias-bg-layer-2, #22242a) 24%, transparent) !important;
   }
 }
 
 body.dsh-glass-over-image [data-dsh-glass="composer"]:focus-within {
-  background: color-mix(in srgb, var(--dsw-alias-bg-layer-2, #22242a) 50%, transparent) !important;
+  /* 聚焦仍要比静置浓一档，但从 50% 降到 30% —— 50% 在气泡上方等于一块板子。 */
+  background: color-mix(in srgb, var(--dsw-alias-bg-layer-2, #22242a) 30%, transparent) !important;
 }

@@ -33,7 +33,12 @@
 /* ---------- 内层气泡壳：玻璃本体 ---------- */
 [data-dsh-glass="bubble-user"] {
   position: relative;
-  isolation: isolate;
+  /* ⚠ 2026-11-07：isolate → auto。
+     `isolation: isolate` 会让这一层成为独立的隔离组，而它的"玻璃感"完全依赖
+     backdrop-filter 采样背后的内容；隔离组一旦让采样失效，气泡就只剩下官方底色 ——
+     用户看到的就是"指针进输入框，我们的气泡变回官方黑底气泡"。
+     auto 让它可以正常采样到页面背景。 */
+  isolation: auto;
 
   /* 纯净玻璃（去磨砂）：
      · 白色自发光渐变整体降一档（0.10/0.03 → 0.05/0.015）
@@ -48,7 +53,7 @@
       rgba(255, 255, 255, 0.015) 34%,
       rgba(255, 255, 255, 0.00) 62%
     ),
-    color-mix(in srgb, var(--dsw-alias-bg-layer-3, #2a2d35) 16%, transparent) !important;
+    color-mix(in srgb, var(--dsw-alias-bg-layer-3, #2a2d35) 30%, transparent) !important;
 
   /* ⚠ 模糊半径走画质档变量（原值 24px 作为兜底）。
      写死数字会让低/极低档承诺的"关磨砂"落空 —— 而气泡是对话流里数量最多的一类。 */
@@ -64,10 +69,11 @@
     inset 0 14px 24px -18px rgba(255, 255, 255, 0),
     0 10px 26px -14px rgba(0, 0, 0, 0.48) !important;
 
-  transition:
-    background-color 420ms cubic-bezier(.16, 1, .3, 1),
-    border-color 420ms cubic-bezier(.16, 1, .3, 1),
-    box-shadow 480ms cubic-bezier(.22, 1, .36, 1);
+  /* ⚠ 2026-11-07：transition 设为 none。
+     带 backdrop-filter 的元素做 background/box-shadow 过渡时会被重新光栅化，
+     背景采样会掉 —— 表现就是气泡瞬间"变回官方黑底"。
+     这与插件里那条老约束（绝不对带 backdrop-filter 的元素做 opacity/transform 动画）同类。 */
+  transition: none;
 }
 
 /* ---------- 悬停：轻微提亮，提示可交互（复制/引用等） ---------- */
