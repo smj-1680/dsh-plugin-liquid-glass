@@ -27,15 +27,15 @@ plugin's own background explicitly with `data-dsh-glass-canvas="off"`.
 
 > **Status: v0.1.80 (published to npm)**
 >
-> - **Three toggles** (`Settings → Liquid Glass`): **token-saving advice**, **intro
->   animation**, and **start in a new session**. The last two are interlocked: when the
->   intro is unavailable (switched off, or the quality tier is Very low / Low) the
->   new-session toggle is greyed out and treated as off. Turning the intro off also
->   stops the plugin's entire boot involvement — no visibility gates, no black cover,
+> - **Settings** (`Settings → Liquid Glass`): **background** (Dots blue / Dusk violet —
+>   one click switches it), **token-saving advice**, **intro animation**, **start in a new
+>   session**, and **updates** (check version). Everything applies **immediately**; there
+>   is no Save button. The intro and the new-session toggle are interlocked: turning the
+>   intro off greys the new-session toggle out and treats it as off. Turning the intro off
+>   also stops the plugin's entire boot involvement — no visibility gates, no black cover,
 >   no entrance choreography — so DSH's own loading flow is used instead.
-> - **First install asks for a quality level.** On the first launch after installing
->   (once the intro finishes) a five-tier picker appears so you choose for your own
->   machine - picking too high causes stutter. Change it later in Settings -> Liquid Glass.
+> - **Quality is fixed at Medium**: thin glass (8px blur), transparent yet still reading
+>   as liquid. There is no tier picker any more — medium measured best and stays cheap.
 >
 > - **DSH desktop only.** In a browser the plugin disables itself entirely (registers
 >   no UI, changes nothing) and shows a one-time notice. This is a deliberate
@@ -82,8 +82,8 @@ just another entry point.
 
 **Either way, restart DSH afterwards** — the material stylesheets are injected at boot.
 
-**On first launch it asks once for a quality level** (after the intro finishes). Pick one
-that suits your machine - too high causes stutter. Change it later in Settings -> Liquid Glass.
+Quality is fixed at Medium, so there is no tier to pick; after restarting, switch the
+background in `Settings → Liquid Glass → Background`.
 
 ### Uninstall
 
@@ -127,20 +127,20 @@ not a preference.
 
 `Settings → Liquid Glass`:
 
-- **Quality tier** — Very low / Low / Medium / High / Very high.
-  Lower tiers drop the blur (the expensive part) and, at the lowest tiers, skip the
-  intro. Changing this **requires a DSH restart** to fully apply.
+- **Background** — two built-in canvases, **Dots blue** and **Dusk violet**. One click
+  switches it and it applies immediately; no wallpaper files are involved.
 - **Token-saving advice** — shows or hides the suggestion strip under the top bar.
   Only meaningful if you do not already run a token-saving plugin.
-- **Intro animation** — the black cover, the video and the title reveal. On by default;
-  the two lowest quality tiers cannot enable it (that is a performance guard, so the
-  toggle is greyed out there rather than silently ignored).
+- **Intro animation** — the black cover, the video and the title reveal. On by default.
 - **Start in a new session** — on: launch lands in a blank session, which is what the
   intro's composer beat is designed around; off: the last conversation is reopened.
   Greyed out (and treated as off) whenever the intro is unavailable.
 - **Snapshot updates** — off by default (stable channel). Turning it on switches
   "Check for updates" to the snapshot channel.
 - **Check for updates** — queries the channel you selected.
+
+Everything above applies immediately — there is no Save button, and no quality tier to
+choose (it is fixed at Medium).
 
 Two release channels are kept apart by npm dist-tag **and** a prerelease suffix:
 snapshots carry `-snapshot.<date>.<random>`, which always sorts *below* the same
