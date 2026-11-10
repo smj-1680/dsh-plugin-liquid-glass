@@ -89,9 +89,10 @@
     {
       "version": "0.1.81",
       "channel": "stable",
-      "status": "pending",
+      "status": "published",
       "note": "0.1.81 —— 修「省token建议条被挤成竖排窄栏」。定位逻辑原来只认 document.querySelector(role=tablist)；新版 DSH（安装目录变为 D:\\DSH）里 tablist 不再唯一，取到侧栏里那个（宽几十像素）后算出 left≈400 / right≈840，position:fixed 一夹只剩约 40px 宽，文字于是竖排。改为多候选测量：条形自身 + 向上 6 层里类名像主列的容器 + 所有 tablist，取「left>=200 且 width>=320」中最宽者；全都量不出时退回整宽（left 0 / right 0）；另外若夹出来的宽度 <=240 也退回整宽。仅此一处改动，其余与 0.1.80 相同。 另：给建议条加了关闭按钮（×）—— 点击等于关掉「省token建议」开关（写存储 + 派发事件，设置页开关同步变关），不做\"只隐藏这一次\"，避免出现第二个沉默状态。 关闭按钮扩成「× + 点击此处关闭提示」一体（点文字也能关），叉号由字符改为 SVG 描边。",
-      "verifiedFingerprint": "967fc8fa6f7bdf18"
+      "verifiedFingerprint": "967fc8fa6f7bdf18",
+      "publishedAt": "2026-11-10T14:07:42.358Z"
     }
   ]
 }

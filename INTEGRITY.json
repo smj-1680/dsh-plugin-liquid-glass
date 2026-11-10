@@ -8,10 +8,10 @@
   "package": "dsh-plugin-liquid-glass",
   "version": "0.1.81",
   "license": "MIT",
-  "generatedAt": "2026-11-10T14:02:03.594Z",
+  "generatedAt": "2026-11-10T14:07:43.290Z",
   "fileCount": 28,
-  "totalBytes": 2745192,
-  "overallFingerprint": "3b112966892a870646260f9504344f54abab239e8348eba445c59626e77251c6",
+  "totalBytes": 2745243,
+  "overallFingerprint": "4a9648c4613eebee770689a5eb305a723c98227ea5238c5543c2d3e4b09a76e8",
   "files": {
     "AUTHOR-NOTICE.txt": {
       "sha256": "34aef4549130a8a78806d68df6de12a393fa8c7ca83d8378f38db3045bb8e5e8",
@@ -122,8 +122,8 @@
       "bytes": 2510
     },
     "release-manifest.json": {
-      "sha256": "1e99ae3dd4943fb392d6cc0b7523b611a99c57a4a541863f5054051d677da714",
-      "bytes": 12559
+      "sha256": "b94dd2b21d67e7e737789381e143734c7eb7686c78475af6f84ab8e854721cae",
+      "bytes": 12610
     }
   }
 }
